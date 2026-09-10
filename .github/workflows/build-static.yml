@@ -1,4 +1,4 @@
-name: Build and deploy GitHub Pages
+name: Build and deploy IT Study Lab
 
 on:
   push:
@@ -27,6 +27,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install browser runtimes
+        run: npm install --no-audit --no-fund
+
       - name: Build static distribution
         run: npm run build
 
@@ -34,14 +37,15 @@ jobs:
         shell: bash
         run: |
           test -f dist/index.html
+          test -f dist/vendor/pglite/index.js
           test -f dist-standalone/index.html
-          echo "Static build is ready"
+          echo "IT Study Lab static build is ready"
           du -sh dist dist-standalone
 
       - name: Upload downloadable static artifact
         uses: actions/upload-artifact@v4
         with:
-          name: db-trainer-static-${{ github.sha }}
+          name: it-study-lab-static-${{ github.sha }}
           path: |
             dist/
             dist-standalone/index.html
