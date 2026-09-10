@@ -1,48 +1,196 @@
-# AGENTS.md — SQL Тренажёр
+# AGENTS.md — IT Study Lab
 
 ## Что это
-Одностраничный веб-тренажёр SQL (диалект SQLite) на базе stdlib Python. Без внешних зависимостей и интернета.
 
-## Команды
-- Запуск: `python3 app.py` → http://localhost:12000 (порт в `main()` в `app.py`).
-- Быстрая проверка решений (все 37 эталонов должны выполняться без ошибок):
-  ```
-  node -e "global.window={};require('./js/tasks.js');require('fs').writeFileSync('/tmp/sols.json',JSON.stringify(global.window.DB_TASKS.map(x=>x.solution)))"
-  python3 -c "import json,urllib.request;[print(json.loads(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:12000/api/execute',data=json.dumps({'sql':s}).encode(),headers={'Content-Type':'application/json'})).read()).get('error','OK')) for s in json.load(open('/tmp/sols.json'))]"
-  ```
+IT Study Lab — browser-first интерактивная песочница для студентов и будущих программистов.
 
-## Архитектура (важные решения)
-- **Единый источник заданий**: `js/tasks.js` (`window.DB_TASKS`). Правильный ответ НЕ хранится в задаче как ожидаемая таблица — вместо этого в задаче есть эталонный `solution`; при проверке фронтенд два раза вызывает `POST /api/execute` (запрос пользователя и `solution`) и сравнивает результаты.
-- **Безопасное выполнение**: `/api/execute` строит новую in-memory SQLite на каждый запрос, поэтому DML/DDL пользователя изолированы и сбрасываются.
-- **Данные/схема**: только `seed.py` (сервер строит из неё БД). `app.py` использует `seed.SCHEMA/DEPARTMENTS/EMPLOYEES/PROJECTS/ASSIGNMENTS`.
-- **Сравнение результатов** (`resultsMatch`/`normalizeCell`/`rowKey` в `js/app.js`): игнорируются имена колонок и алиасы; `150000 == 150000.0`; `NULL` совпадает с `NULL`; дробные сверяются с точностью 1e-6; флаг `ordered` в задаче управляет учётом порядка строк.
+Основной продукт — **Sandbox**. Пользователь выбирает технологический runtime, свободно вводит команды/код и наблюдает результат. **Tests / Practice** — отдельный образовательный слой для проверки знаний и не должен диктовать архитектуру рабочего пространства.
 
-## Изменение
-- Новое задание → объект в `DB_TASKS` (`id, level, title, description, hint, solution, ordered`). `description` поддерживает `код` через backticks. Названия уровней в `LEVEL_NAMES` в `app.js`.
-- Данные/схема → `seed.py`, затем перезапуск сервера.
+Главное правило: **real runtime where possible**. Если технологию можно безопасно выполнить в браузере через WASM/JS runtime, используем реальное исполнение. Симуляторы применяем там, где настоящий runtime для статического hosting не подходит.
 
-## Браузерная версия (основная для студентов)
-- `web/` — исходники статического приложения; `node build_dist.js` копирует в `dist/`.
-- Студент открывает `dist/index.html`. SQLite — sql.js (WASM) прямо в браузере, сервер не нужен.
-- `web/js/db.js`: `initSqlJs({ wasmBinary })` (глобал из `vendor/sql-wasm.js`); выполнение через `db.exec` (`{columns, values}`; sql.js отдаёт NULL как `undefined` → конвертим в `null` в executeSQL).
-- `vendor/sql-binary.js` — base64 от `sql-wasm.wasm`, чтобы работало по `file://` без fetch. Если в конкретной среде `file://` всё же режет wasm — поднять `python3 -m http.server` в `dist/`.
-- Единый источник: задания `js/tasks.js` (копируется в `web/js/` через `tools/gen_data.py`), данные `seed.py` → `web/js/data.js`.
-- Проверка сборки в Node (тот же путь base64→Uint8Array→initSqlJs→db.exec): прогон всех решений через `dist/vendor/sql-wasm.js`.
+## Текущий source of truth
 
-## Не делать
-- Не полагаться на порядок объявления для utility-класса `.hidden` — компонентные правила с `display` (`.modal { display: flex }`) его перебивают при равной специфичности. `.hidden` держим с `!important`.
-- Не тянуть sql.js/WASM с внешнего CDN в рантайме — берём **vendored** файлы из `web/vendor/` (CDN может быть недоступен офлайн); при необходимости обновить — скачать и закоммитить в `web/vendor/`, затем `tools/gen_data.py` для base64-версии.
-- Не конвертировать `tasks.js` в Python регулярками: кириллица + кавычки ломают простой regex-конвертер; держим задания в JS.
+- `web/` — исходники браузерного приложения.
+- `web/index.html` — shell Sandbox + Tests.
+- `web/js/app.js` — orchestration UI.
+- `web/js/workbench.js` — универсальная интерактивная сессия, история запусков и bridge к runtime.
+- `web/js/engines/` — технологические adapters.
+- `web/js/db.js` — совместимый DB facade над `LabRuntime`.
+- `web/js/tasks.js` — только контент блока SQL Tests / Practice.
+- `web/js/design.js` — ER Designer.
+- `web/js/data.js` — browser dataset.
+- `seed.py` — исходные учебные данные.
+- `dist/`, `dist-standalone/` — генерируемые результаты; вручную не редактировать.
 
-## Режим проектирования (web/js/design.js)
-- Полноэкранный canvas-редактор ER-схемы, вызов `window.Designer.open(task|null)`, кнопка `#btn-design` в topbar (sandboxMode → open(null)).
-- Модель `{tables:[{id,name,x,y,columns:[{name,type,pk,fk:{tableId,column}}]}]}` хранится в localStorage по ключу `sqltr.design.<taskId|sandbox>`; автосейв на любом изменении.
-- Связь FK рисуется перетаскиванием с «точки» справа от колонки (`linkDrag`) на целевую таблицу → `connect()` создаёт колонку `<target>_id` с fk.
-- `genDDL()` делает топосортировку по fk (рекурсивный `visit` ОБЯЗАТЕЛЬНО именованная `function`, а не function-expression — иначе `visit` не виден снаружи, ReferenceError).
-- design.js должен идти в инлайн-сборке ДО app.js (app.js ссылается на window.Designer по клику).
-- Canvas скрывается тем же `.hidden`(!important) — при тесте в браузере не полагаться на скриншоты rrweb (рисуют скрытые слои); проверять через get_state/get_content.
+## Текущие runtimes
 
-## Один файл dist-standalone/index.html
-- `node build_inline.js` — самый простой для студента вариант: всё вшито в один index.html (CSS, JS, wasm в base64), ноль внешних запросов, гарантированно работает по file://.
-- Механизм: из web/index.html вырезаются `<link>` и `<script src>`, содержимое файлов вшивается в `<style>`/`<script>` в порядке: движок (sql-wasm.js), бинарник (sql-binary.js), данные, задания, обёртка БД (db.js), UI (app.js). Билдер проверяет отсутствие `</script>` в файлах перед инлайном.
-- Пересборка после правок: `python3 tools/gen_data.py && node build_dist.js && node build_inline.js`.
+### SQLite
+
+`SqliteEngine` использует sql.js/WASM и работает полностью локально, включая standalone `file://`.
+
+### PostgreSQL
+
+`PGliteEngine` использует `@electric-sql/pglite`. PGlite ставится через npm и копируется во время сборки в `dist/vendor/pglite`. Не заменять это внешним CDN без отдельного решения: GitHub Pages должен оставаться самодостаточным.
+
+## Sandbox-first UX
+
+При открытии приложения пользователь должен попадать в Sandbox, а не в список заданий.
+
+Database Sandbox должен предоставлять:
+
+- выбор runtime;
+- постоянное поле SQL input;
+- `Run` и `Ctrl/Cmd + Enter`;
+- сохранение черновика отдельно для каждого engine;
+- историю выполнений отдельно для каждого engine;
+- результат команды;
+- schema inspector;
+- ER Designer;
+- reset runtime.
+
+Sandbox сохраняет состояние между командами. Например `CREATE TABLE`, затем `INSERT`, затем `SELECT` должны выполняться в одной рабочей сессии до явного reset.
+
+## Tests / Practice
+
+Tests — отдельная вкладка.
+
+Текущие SQL-тесты используют `window.DB_TASKS`. Задание содержит `id`, `level`, `title`, `description`, `hint`, `solution`, `ordered`.
+
+При проверке теста runtime должен быть изолирован от свободной Sandbox-сессии настолько, насколько это позволяет текущая реализация. Перед выполнением пользовательского решения и эталонного solution база сбрасывается к reference dataset.
+
+Не превращать Sandbox обратно в интерфейс «введи ответ → сравни с solution».
+
+## Runtime API
+
+Текущий базовый контракт находится в `web/js/engines/lab-engine.js`, диспетчер — в `runtime.js`.
+
+Новые движки должны подключаться через общий runtime и не требовать переписывания shell.
+
+Целевые типы capability:
+
+```text
+sql
+terminal
+filesystem
+network
+processes
+graphics
+persistentStorage
+snapshot
+stdin
+interrupt
+metrics
+```
+
+Следующие расширения API должны быть совместимы с идеей:
+
+```text
+init(options)
+execute(command, options)
+stdin(data)
+interrupt()
+reset(options)
+snapshot()
+restore(snapshot)
+filesystem()
+metrics()
+destroy()
+```
+
+Не добавлять SQL-specific методы в общий `LabRuntime`, если это можно выразить generic API или capability конкретного движка.
+
+## Следующие модули
+
+Приоритет после Database Sandbox:
+
+1. Programming Sandbox — Python/Pyodide, затем browser JavaScript.
+2. Operating Systems Sandbox — terminal, filesystem, processes/signals, позже Linux runtime/simulator.
+3. Software Sandbox — Dockerfile/Compose/container model, Git и CI/CD.
+
+Тяжёлые runtimes загружать лениво. Открытие Database Sandbox не должно тянуть Pyodide, Linux image или другие будущие WASM assets.
+
+## Архитектурная граница
+
+```text
+Sandbox UI
+   ↓
+WorkbenchSession
+   ↓
+LabRuntime
+   ↓
+Engine
+   ↓
+Result / State
+```
+
+Отдельно:
+
+```text
+Tests / Labs / Exams
+   ↓
+Task content + Validator
+   ↓
+тот же LabRuntime / Engine
+```
+
+То есть testing framework использует runtimes, но не является ядром продукта.
+
+## Сборка
+
+```bash
+npm install
+npm run build
+```
+
+`npm run build`:
+
+1. `build_dist.js` копирует `web/` в `dist/` и добавляет локальный PGlite runtime.
+2. `build_inline.js` делает `dist-standalone/index.html` с SQLite.
+
+Для локального HTTP запуска:
+
+```bash
+python3 -m http.server 8000 -d dist
+```
+
+## GitHub Pages
+
+`.github/workflows/build-static.yml` собирает `dist/`, загружает downloadable artifact и публикует `dist/` через GitHub Pages.
+
+Core-функциональность должна оставаться совместимой со статическим hosting. Не добавлять обязательный backend для Sandbox.
+
+## ER Designer
+
+`web/js/design.js` предоставляет `window.Designer.open(task|null)`.
+
+- `open(null)` — свободное проектирование из Sandbox.
+- `open(task)` — проектирование в контексте Tests.
+- `.hidden` должен сохранять `!important`, потому что fullscreen/modal компоненты используют собственный `display`.
+
+## Что не делать
+
+- Не смешивать свободную песочницу с обязательной системой заданий.
+- Не делать backend обязательным для базового продукта.
+- Не хранить новые тяжёлые runtime assets в исходном Git tree, если они могут ставиться на build step из зафиксированной зависимости.
+- Не использовать внешний CDN для критического runtime без необходимости.
+- Не править `dist/` вручную.
+- Не загружать все будущие runtimes при старте приложения.
+
+## Проверка перед merge/push
+
+Минимально:
+
+```bash
+npm install
+npm run build
+```
+
+Проверить наличие:
+
+```text
+dist/index.html
+dist/vendor/pglite/index.js
+dist-standalone/index.html
+```
+
+Для UI-проверки предпочтителен browser smoke test: открыть Sandbox, выполнить SQLite запрос, переключиться на PostgreSQL и выполнить запрос, затем открыть Tests и проверить одно задание.
