@@ -1,8 +1,8 @@
 {
   "name": "it-study-lab",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "IT Study Lab — интерактивная браузерная лабораторная среда для подготовки студентов по IT-дисциплинам.",
+  "description": "IT Study Lab — интерактивная браузерная песочница для будущих программистов с отдельным блоком тестирования знаний.",
   "scripts": {
     "gen-data": "python3 tools/gen_data.py",
     "build": "node build_dist.js && node build_inline.js"
