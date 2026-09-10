@@ -1,68 +1,133 @@
 # IT Study Lab
 
-**IT Study Lab** — интерактивная браузерная лабораторная среда для подготовки студентов по IT-дисциплинам. Проект строится вокруг принципа **real runtime where possible**: если технологию можно безопасно запустить прямо в браузере через WebAssembly, задания выполняются в настоящем или максимально близком к настоящему runtime, а не в текстовой имитации.
+**IT Study Lab** — браузерная интерактивная песочница для будущих программистов и студентов IT-направлений.
 
-Сейчас первым полноценным модулем является **«Базы данных»**.
+Главный сценарий проекта — **свободная работа с технологией**, а не прохождение тестов. Студент выбирает runtime, пишет команды или код, запускает их и наблюдает реальный результат. Проверка знаний вынесена в отдельный режим **Tests / Practice**.
 
-## Текущие лабораторные движки
+Принцип платформы: **real runtime where possible**. Если технологию можно безопасно запустить в браузере через WebAssembly или JavaScript runtime, IT Study Lab использует настоящее исполнение вместо текстовой имитации.
 
-| Движок | Технология | Назначение |
+## Сейчас доступно
+
+Первый рабочий модуль — **Базы данных**:
+
+| Runtime | Технология | Что можно делать |
 | --- | --- | --- |
-| SQLite | sql.js / WASM | быстрые SQL-задания, полностью офлайн |
-| PostgreSQL | PGlite / WASM | PostgreSQL-задания и будущие лабораторные работы по DDL, индексам, транзакциям и диагностике |
+| SQLite | sql.js / WASM | свободно выполнять SQL, менять данные и схему, экспериментировать офлайн |
+| PostgreSQL | PGlite / WASM | работать с PostgreSQL прямо в браузере без отдельного сервера |
 
-Движок выбирается прямо в интерфейсе. SQLite загружается сразу, PostgreSQL/PGlite — лениво при первом выборе.
+PGlite загружается локально из Pages-сборки, без внешнего CDN.
 
-## Архитектура runtime
+## Два независимых режима
 
-В `web/js/engines/` находится общий слой исполнения:
+### Sandbox
+
+Sandbox открывается по умолчанию и является основной частью продукта.
+
+В Database Sandbox можно:
+
+- выбрать SQLite или PostgreSQL;
+- выполнять многострочные SQL-запросы;
+- запускать запрос по `Ctrl/Cmd + Enter`;
+- изменять данные и схему базы;
+- смотреть результат выполнения;
+- просматривать историю команд;
+- повторно открывать запрос из истории;
+- смотреть учебную схему;
+- открыть ER Designer;
+- сбросить runtime в исходное состояние.
+
+Состояние runtime живёт между командами, поэтому это именно интерактивная рабочая среда, а не форма «ввести ответ и проверить».
+
+### Tests / Practice
+
+Старые SQL-задания сохранены как отдельный блок проверки знаний.
+
+В этом режиме:
+
+- есть формулировка задания, подсказка и пример решения;
+- запрос студента сравнивается с результатом эталонного решения;
+- тестовое окружение сбрасывается между проверками;
+- прогресс и черновики сохраняются локально.
+
+Tests не ограничивают Sandbox и в будущем смогут использовать те же runtimes для экзаменов и лабораторных сценариев.
+
+## Архитектура
 
 ```text
-LabEngine
-   │
-   ├── SqliteEngine      -> sql.js / WASM
-   ├── PGliteEngine      -> PostgreSQL / PGlite / WASM
-   └── будущие движки    -> Redis-like, Python, shell, Docker analyzer...
+IT Study Lab
+│
+├── Sandbox                         основной продукт
+│   └── WorkbenchSession
+│       └── LabRuntime
+│           ├── SqliteEngine
+│           ├── PGliteEngine
+│           └── future engines
+│
+└── Tests / Practice                слой проверки знаний
+    └── tasks + validators
+```
 
+`LabRuntime` отвечает за регистрацию и переключение движков. `WorkbenchSession` добавляет поверх runtime интерактивную сессию и историю команд.
+
+```text
+input
+  ↓
+Workbench
+  ↓
 LabRuntime
-   ├── register(engine)
-   ├── use(engineId)
-   ├── execute(command)
-   ├── reset()
-   └── schemaDoc()
+  ↓
+Engine
+  ↓
+result / state
+  ↓
+UI
 ```
 
-`window.DB` оставлен как совместимый фасад над `LabRuntime`, поэтому существующий SQL-модуль и дизайнер схемы не зависят от конкретного движка.
+Для будущего Python это будет `code → Python runtime → stdout/files`; для Linux — `command → terminal runtime → stdout/processes/filesystem`; для Docker — `Dockerfile/CLI → container simulator → layers/network/volumes`.
 
-## Базы данных
-
-Текущий учебный набор использует базу «сотрудники — отделы — проекты» и включает уровни:
-
-- основы `SELECT`;
-- `WHERE` и фильтрацию;
-- сортировку и лимиты;
-- агрегаты и `GROUP BY`;
-- `JOIN`;
-- подзапросы;
-- `CASE` и условия;
-- свободную SQL-песочницу;
-- визуальный режим проектирования схемы.
-
-Результат запроса студента сравнивается с результатом эталонного решения, поэтому запрос не обязан текстово совпадать с примером.
-
-## GitHub Pages
-
-`main` автоматически собирается и публикуется через GitHub Actions. Публикуется каталог `dist/`.
+## Направления Sandbox
 
 ```text
-push main
-   -> npm install
-   -> npm run build
-   -> dist/
-   -> GitHub Pages
+IT Study Lab
+├── Базы данных
+│   ├── SQLite
+│   └── PostgreSQL / PGlite
+│
+├── Программирование
+│   ├── Python / Pyodide
+│   └── JavaScript
+│
+├── Операционные системы
+│   └── Linux terminal / filesystem / processes
+│
+└── Специальные программные продукты
+    └── Docker / Compose / Git / CI/CD
 ```
 
-PGlite устанавливается как npm-зависимость и при сборке копируется в `dist/vendor/pglite`, поэтому опубликованный PostgreSQL Lab не зависит от стороннего CDN.
+Тяжёлые runtimes должны загружаться лениво: пользователь базы данных не должен скачивать Linux image или Pyodide.
+
+## Структура текущего приложения
+
+```text
+.github/workflows/       build + GitHub Pages
+web/                     источник браузерного приложения
+  css/
+  js/
+    engines/             runtime adapters
+    workbench.js         универсальная интерактивная сессия
+    app.js               Sandbox + Tests shell
+    db.js                совместимый DB facade
+    data.js              учебный dataset
+    tasks.js             SQL Tests / Practice
+    design.js            ER Designer
+  vendor/                browser assets
+build_dist.js            собирает dist/ и добавляет PGlite
+build_inline.js          автономная SQLite-сборка
+seed.py                  исходные данные учебной БД
+tools/                   генераторы
+```
+
+`dist/` и `dist-standalone/` — генерируемые результаты сборки и руками не редактируются.
 
 ## Локальный запуск
 
@@ -74,64 +139,22 @@ python3 -m http.server 8000 -d dist
 
 После этого откройте `http://localhost:8000`.
 
-## Standalone
+## GitHub Pages
 
-`npm run build` также создаёт `dist-standalone/index.html`.
-
-Этот файл полностью автономно запускает **SQLite Lab** по `file://`. PostgreSQL/PGlite использует многокомпонентный ES-module runtime и поэтому доступен в обычной `dist/`-сборке через HTTP/GitHub Pages.
-
-## Структура
+Push в `main` автоматически собирает приложение и публикует каталог `dist/` в GitHub Pages.
 
 ```text
-.github/workflows/       CI/CD и GitHub Pages
-web/                     исходники браузерного приложения
-  css/
-  js/
-    engines/             LabEngine, LabRuntime и технологические adapters
-    app.js               UI модуля баз данных
-    db.js                совместимый фасад runtime
-    data.js              учебная БД
-    tasks.js             SQL-задания
-  vendor/                 статические browser-зависимости исходного модуля
-build_dist.js            сборка dist/ + локальный PGlite runtime
-build_inline.js          сборка автономного SQLite HTML
-seed.py                  исходные данные учебной БД
-tools/                   генераторы данных
+push main
+  → npm install
+  → npm run build
+  → dist/
+  → GitHub Pages
 ```
 
-`dist/` и `dist-standalone/` являются результатами сборки и руками не редактируются.
+Standalone-версия `dist-standalone/index.html` содержит SQLite и может работать локально через `file://`. PostgreSQL/PGlite требует обычную HTTP/Pages-сборку.
 
-## Направление развития
+## Следующий приоритет
 
-Целевая структура IT Study Lab:
+Следующий runtime для Sandbox — **программирование**: сначала Python через Pyodide, затем JavaScript. После этого — Linux terminal и Docker/Compose laboratory environment.
 
-```text
-IT Study Lab
-├── Базы данных
-│   ├── SQLite
-│   ├── PostgreSQL
-│   ├── проектирование
-│   ├── транзакции
-│   ├── индексы
-│   └── диагностика
-├── Программирование IT-систем
-│   ├── Python runtime
-│   ├── JavaScript runtime
-│   └── API / debugging labs
-├── Операционные системы
-│   ├── shell lab
-│   ├── процессы
-│   ├── память
-│   └── файловые системы
-└── Специальные программные продукты
-    ├── Docker / Compose
-    ├── Git
-    ├── CI/CD
-    └── инфраструктурные лабораторные работы
-```
-
-Следующие движки должны подключаться через тот же `LabEngine` API, чтобы учебный контент и UI не зависели от конкретной технологии исполнения.
-
-## PGlite
-
-PostgreSQL Lab использует [`@electric-sql/pglite`](https://github.com/electric-sql/pglite) от Electric SQL — PostgreSQL, скомпилированный в WebAssembly. Версия зависимости зафиксирована в `package.json`.
+Tests, курсы, skill tree и экзамены должны развиваться как дополнительный образовательный слой поверх работающих песочниц, а не заменять их.
