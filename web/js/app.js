@@ -50,7 +50,11 @@ function saveSet(key, set) {
 
 function loadDrafts() {
   try {
-    return JSON.parse(localStorage.getItem(STORE_DRAFTS) || localStorage.getItem("sqltr.drafts") || "{}");
+    return JSON.parse(
+      localStorage.getItem(STORE_DRAFTS) ||
+      localStorage.getItem("sqltr.drafts") ||
+      "{}"
+    );
   } catch {
     return {};
   }
@@ -58,25 +62,43 @@ function loadDrafts() {
 
 function renderTable(result) {
   if (!result) return '<div class="empty">—</div>';
-  if (result.error) return `<div class="empty result-error">${escapeHtml(result.error)}</div>`;
-  if (!result.columns || result.columns.length === 0) return '<div class="empty">Команда выполнена. Табличного результата нет.</div>';
-  if (!result.rows || result.rows.length === 0) return '<div class="empty">0 строк</div>';
+  if (result.error) {
+    return `<div class="empty result-error">${escapeHtml(result.error)}</div>`;
+  }
+  if (!result.columns || result.columns.length === 0) {
+    return '<div class="empty">Команда выполнена. Табличного результата нет.</div>';
+  }
+  if (!result.rows || result.rows.length === 0) {
+    return '<div class="empty">0 строк</div>';
+  }
 
   const head = result.columns.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
-  const body = result.rows.map((row) => `<tr>${row.map((value) => `<td>${value === null ? '<span class="null-value">NULL</span>' : escapeHtml(value)}</td>`).join("")}</tr>`).join("");
-  const note = result.truncated ? '<div class="empty">Показаны первые 500 строк</div>' : "";
+  const body = result.rows
+    .map((row) => `<tr>${row.map((value) => `<td>${
+      value === null
+        ? '<span class="null-value">NULL</span>'
+        : escapeHtml(value)
+    }</td>`).join("")}</tr>`)
+    .join("");
+  const note = result.truncated
+    ? '<div class="empty">Показаны первые 500 строк</div>'
+    : "";
   return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>${note}`;
 }
 
 function normalizeCell(value) {
   if (value === null || value === undefined) return "NULL";
   if (typeof value === "number") {
-    return Math.abs(value - Math.round(value)) < 1e-9 ? String(Math.round(value)) : (Math.round(value * 1e6) / 1e6).toString();
+    return Math.abs(value - Math.round(value)) < 1e-9
+      ? String(Math.round(value))
+      : (Math.round(value * 1e6) / 1e6).toString();
   }
   return String(value);
 }
 
-function rowKey(row) { return row.map(normalizeCell).join("\u0001"); }
+function rowKey(row) {
+  return row.map(normalizeCell).join("\u0001");
+}
 
 function resultsMatch(a, b, ordered) {
   if (!a || !b) return false;
@@ -84,6 +106,7 @@ function resultsMatch(a, b, ordered) {
   const rb = b.rows || [];
   if (ra.length !== rb.length) return false;
   if (ordered) return ra.every((row, index) => rowKey(row) === rowKey(rb[index]));
+
   const expected = {};
   rb.forEach((row) => {
     const key = rowKey(row);
@@ -119,7 +142,14 @@ function setMode(mode) {
 }
 
 function renderEngineOptions() {
-  $("engine-select").innerHTML = runtime.list().map((engine) => `<option value="${escapeHtml(engine.id)}">${escapeHtml(engine.label)} · ${escapeHtml(engine.technology || engine.dialect || "runtime")}</option>`).join("");
+  $("engine-select").innerHTML = runtime
+    .list()
+    .map((engine) =>
+      `<option value="${escapeHtml(engine.id)}">${escapeHtml(engine.label)} · ${escapeHtml(
+        engine.technology || engine.dialect || "runtime"
+      )}</option>`
+    )
+    .join("");
 }
 
 function updateEngineStatus(text, state = "") {
@@ -147,11 +177,16 @@ async function switchEngine(id) {
     $("sandbox-feedback").textContent = "";
     syncSandboxDraft();
     renderHistory();
+
     if (currentTask) selectTask(currentTask.id);
   } catch (err) {
     select.value = previous || "sqlite";
     updateEngineStatus("ошибка запуска", "error");
-    showFeedback($("sandbox-feedback"), `Не удалось запустить runtime: ${(err && err.message) || err}`, false);
+    showFeedback(
+      $("sandbox-feedback"),
+      `Не удалось запустить runtime: ${(err && err.message) || err}`,
+      false
+    );
   } finally {
     select.disabled = false;
     $("sandbox-run").disabled = false;
@@ -162,12 +197,19 @@ async function switchEngine(id) {
 function syncSandboxDraft() {
   const engineId = runtime.activeId || "sqlite";
   const key = `it-study-lab.workbench.draft.${engineId}`;
-  $("sandbox-editor").value = localStorage.getItem(key) || (engineId === "postgres" ? "SELECT version();\n\nSELECT * FROM employees LIMIT 5;" : "SELECT sqlite_version();\n\nSELECT * FROM employees LIMIT 5;");
+  $("sandbox-editor").value =
+    localStorage.getItem(key) ||
+    (engineId === "postgres"
+      ? "SELECT version();\n\nSELECT * FROM employees LIMIT 5;"
+      : "SELECT sqlite_version();\n\nSELECT * FROM employees LIMIT 5;");
 }
 
 function saveSandboxDraft() {
   const engineId = runtime.activeId || "sqlite";
-  localStorage.setItem(`it-study-lab.workbench.draft.${engineId}`, $("sandbox-editor").value);
+  localStorage.setItem(
+    `it-study-lab.workbench.draft.${engineId}`,
+    $("sandbox-editor").value
+  );
 }
 
 async function runSandbox() {
@@ -184,7 +226,9 @@ async function runSandbox() {
     const entry = await workbench.run(command);
     $("sandbox-result").innerHTML = renderTable(entry.result);
     const rows = (entry.result && entry.result.rows && entry.result.rows.length) || 0;
-    const message = entry.result && entry.result.error ? `Ошибка · ${entry.durationMs} ms` : `Готово · ${entry.durationMs} ms · ${rows} строк`;
+    const message = entry.result && entry.result.error
+      ? `Ошибка · ${entry.durationMs} ms`
+      : `Готово · ${entry.durationMs} ms · ${rows} строк`;
     showFeedback($("sandbox-feedback"), message, !(entry.result && entry.result.error));
     renderHistory();
   } finally {
@@ -211,11 +255,18 @@ function renderHistory() {
     target.innerHTML = '<div class="history-empty">История появится после первого запуска.</div>';
     return;
   }
-  target.innerHTML = items.slice(0, 20).map((item, index) => {
-    const preview = item.command.replace(/\s+/g, " ").trim();
-    const ok = !item.error;
-    return `<button class="history-item" data-history-index="${index}"><span class="history-state ${ok ? "ok" : "bad"}">${ok ? "✓" : "!"}</span><span class="history-command">${escapeHtml(preview)}</span><span class="history-time">${item.durationMs} ms</span></button>`;
-  }).join("");
+  target.innerHTML = items
+    .slice(0, 20)
+    .map((item, index) => {
+      const preview = item.command.replace(/\s+/g, " ").trim();
+      const ok = !item.error;
+      return `<button class="history-item" data-history-index="${index}">
+        <span class="history-state ${ok ? "ok" : "bad"}">${ok ? "✓" : "!"}</span>
+        <span class="history-command">${escapeHtml(preview)}</span>
+        <span class="history-time">${item.durationMs} ms</span>
+      </button>`;
+    })
+    .join("");
 
   target.querySelectorAll(".history-item").forEach((button) => {
     button.addEventListener("click", () => {
@@ -235,34 +286,59 @@ function showFeedback(element, message, ok) {
 
 function showSchema() {
   const meta = runtime.getMeta() || { label: "SQL" };
-  openModal(`<h3>Схема учебной базы · ${escapeHtml(meta.label)}</h3><pre>${escapeHtml(window.DB.schemaDoc())}</pre><p class="muted">Схема одинакова в SQLite и PostgreSQL, чтобы можно было сравнивать диалекты.</p>`);
+  openModal(
+    `<h3>Схема учебной базы · ${escapeHtml(meta.label)}</h3>` +
+    `<pre>${escapeHtml(window.DB.schemaDoc())}</pre>` +
+    '<p class="muted">Схема одинакова в SQLite и PostgreSQL, чтобы можно было сравнивать диалекты.</p>'
+  );
 }
 
 function openFutureModule(name, description) {
-  openModal(`<div class="coming-badge">Следующий runtime</div><h3>${escapeHtml(name)}</h3><p>${escapeHtml(description)}</p><p class="muted">Этот модуль будет подключаться к тому же Workbench API: input → runtime → output/state.</p>`);
+  openModal(
+    `<div class="coming-badge">Следующий runtime</div>` +
+    `<h3>${escapeHtml(name)}</h3>` +
+    `<p>${escapeHtml(description)}</p>` +
+    `<p class="muted">Этот модуль будет подключаться к тому же Workbench API: input → runtime → output/state.</p>`
+  );
 }
 
 function renderSidebar() {
   const byLevel = {};
   TASKS.forEach((task) => (byLevel[task.level] = byLevel[task.level] || []).push(task));
-  $("test-task-list").innerHTML = Object.keys(byLevel).sort((a, b) => Number(a) - Number(b)).map((level) => {
-    const items = byLevel[level].map((task) => {
-      const ok = solved.has(task.id);
-      const active = currentTask && currentTask.id === task.id;
-      return `<button class="task-item ${ok ? "solved" : ""} ${active ? "active" : ""}" data-id="${task.id}"><span class="mark">${ok ? "✓" : ""}</span><span>${escapeHtml(task.title)}</span></button>`;
-    }).join("");
-    return `<div class="level-group"><div class="level-name">${LEVEL_NAMES[level] || `Уровень ${level}`}</div>${items}</div>`;
-  }).join("");
+  $("test-task-list").innerHTML = Object.keys(byLevel)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((level) => {
+      const items = byLevel[level]
+        .map((task) => {
+          const ok = solved.has(task.id);
+          const active = currentTask && currentTask.id === task.id;
+          return `<button class="task-item ${ok ? "solved" : ""} ${active ? "active" : ""}" data-id="${task.id}">
+            <span class="mark">${ok ? "✓" : ""}</span>
+            <span>${escapeHtml(task.title)}</span>
+          </button>`;
+        })
+        .join("");
+      return `<div class="level-group">
+        <div class="level-name">${LEVEL_NAMES[level] || `Уровень ${level}`}</div>
+        ${items}
+      </div>`;
+    })
+    .join("");
 
-  $("test-task-list").querySelectorAll(".task-item").forEach((button) => button.addEventListener("click", () => selectTask(button.dataset.id)));
+  $("test-task-list").querySelectorAll(".task-item").forEach((button) => {
+    button.addEventListener("click", () => selectTask(button.dataset.id));
+  });
 }
 
-function updateProgress() { $("progress").textContent = `Tests: ${solved.size} / ${TASKS.length}`; }
+function updateProgress() {
+  $("progress").textContent = `Tests: ${solved.size} / ${TASKS.length}`;
+}
 
 function selectTask(id) {
   const task = TASKS.find((item) => item.id === id);
   if (!task) return;
   currentTask = task;
+
   $("test-level").textContent = LEVEL_NAMES[task.level] || `Уровень ${task.level}`;
   $("test-title").textContent = task.title;
   $("test-desc").innerHTML = formatInline(task.description);
@@ -298,15 +374,23 @@ async function runTest() {
   localStorage.setItem(STORE_DRAFTS, JSON.stringify(drafts));
 
   $("test-run").disabled = true;
+  let testEngine = null;
   try {
-    await runtime.reset();
-    const userResult = await runtime.execute(sql);
+    // Tests use a separate temporary engine. Free Sandbox state must survive
+    // opening and running knowledge checks.
+    testEngine = await runtime.createIsolated(runtime.activeId);
+    const userResult = await testEngine.execute(sql);
     $("test-user-result").innerHTML = renderTable(userResult);
-    await runtime.reset();
-    const expected = await runtime.execute(currentTask.solution);
+
+    await testEngine.reset();
+    const expected = await testEngine.execute(currentTask.solution);
     $("test-expected-result").innerHTML = renderTable(expected);
 
-    const ok = !userResult.error && !expected.error && resultsMatch(userResult, expected, currentTask.ordered !== false);
+    const ok =
+      !userResult.error &&
+      !expected.error &&
+      resultsMatch(userResult, expected, currentTask.ordered !== false);
+
     if (ok) {
       solved.add(currentTask.id);
       saveSet(STORE_DONE, solved);
@@ -318,13 +402,21 @@ async function runTest() {
       feedback.textContent = "Верно. Результат совпадает с ожидаемым.";
     } else if (userResult.error) {
       feedback.className = "feedback no";
-      feedback.innerHTML = `Запрос завершился с ошибкой:<br><span class="err">${escapeHtml(userResult.error)}</span>`;
+      feedback.innerHTML =
+        `Запрос завершился с ошибкой:<br><span class="err">${escapeHtml(userResult.error)}</span>`;
     } else {
       feedback.className = "feedback no";
-      feedback.textContent = "Результат не совпадает с ожидаемым. Сравните таблицы и попробуйте ещё раз.";
+      feedback.textContent =
+        "Результат не совпадает с ожидаемым. Сравните таблицы и попробуйте ещё раз.";
     }
+  } catch (err) {
+    feedback.className = "feedback no";
+    feedback.innerHTML =
+      `Не удалось запустить тестовое окружение:<br><span class="err">${escapeHtml((err && err.message) || err)}</span>`;
   } finally {
-    await runtime.reset();
+    if (testEngine && typeof testEngine.destroy === "function") {
+      await testEngine.destroy();
+    }
     $("test-run").disabled = false;
   }
 }
@@ -340,19 +432,31 @@ function wireEvents() {
   $("engine-select").addEventListener("change", (event) => switchEngine(event.target.value));
 
   $("sandbox-run").addEventListener("click", runSandbox);
-  $("sandbox-clear").addEventListener("click", () => { $("sandbox-editor").value = ""; $("sandbox-editor").focus(); });
+  $("sandbox-clear").addEventListener("click", () => {
+    $("sandbox-editor").value = "";
+    $("sandbox-editor").focus();
+  });
   $("sandbox-reset").addEventListener("click", resetSandbox);
   $("sandbox-schema").addEventListener("click", showSchema);
   $("sandbox-design").addEventListener("click", () => window.Designer.open(null));
-  $("sandbox-clear-history").addEventListener("click", () => { workbench.clearHistory(); renderHistory(); });
+  $("sandbox-clear-history").addEventListener("click", () => {
+    workbench.clearHistory();
+    renderHistory();
+  });
   $("sandbox-editor").addEventListener("input", saveSandboxDraft);
   $("sandbox-editor").addEventListener("keydown", (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); runSandbox(); }
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      runSandbox();
+    }
   });
 
   $("test-run").addEventListener("click", runTest);
   $("test-editor").addEventListener("keydown", (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); runTest(); }
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      runTest();
+    }
   });
   $("test-hint").addEventListener("click", () => {
     if (!currentTask) return;
@@ -361,7 +465,8 @@ function wireEvents() {
   });
   $("test-solution").addEventListener("click", () => {
     if (!currentTask) return;
-    $("test-solution-box").innerHTML = `Пример решения:<pre>${escapeHtml(currentTask.solution)}</pre>`;
+    $("test-solution-box").innerHTML =
+      `Пример решения:<pre>${escapeHtml(currentTask.solution)}</pre>`;
     $("test-solution-box").classList.remove("hidden");
   });
   $("test-clear").addEventListener("click", () => ($("test-editor").value = ""));
@@ -380,11 +485,15 @@ function wireEvents() {
   });
 
   document.querySelectorAll("[data-future-module]").forEach((button) => {
-    button.addEventListener("click", () => openFutureModule(button.dataset.title, button.dataset.description));
+    button.addEventListener("click", () =>
+      openFutureModule(button.dataset.title, button.dataset.description)
+    );
   });
 
   $("modal-close").addEventListener("click", () => $("modal").classList.add("hidden"));
-  $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").classList.add("hidden"); });
+  $("modal").addEventListener("click", (event) => {
+    if (event.target === $("modal")) $("modal").classList.add("hidden");
+  });
 }
 
 async function boot() {
@@ -392,9 +501,11 @@ async function boot() {
   updateProgress();
   renderSidebar();
   wireEvents();
+
   const requestedMode = new URL(location.href).searchParams.get("mode");
   setMode(requestedMode === "tests" ? "tests" : "sandbox");
   await switchEngine("sqlite");
+
   if (!currentTask && TASKS.length) selectTask(TASKS[0].id);
 }
 
