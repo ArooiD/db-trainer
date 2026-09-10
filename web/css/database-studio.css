@@ -434,25 +434,27 @@
     linear-gradient(90deg, rgba(56, 72, 108, .12) 1px, transparent 1px),
     #0b1120;
   background-size: 24px 24px;
+  cursor: grab;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
+.live-erd.panning { cursor: grabbing; user-select: none; }
 
 .erd-stage {
   position: relative;
   min-width: 850px;
   min-height: 440px;
-  padding: 28px;
 }
 
 .erd-grid {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 42px 70px;
-  align-items: start;
 }
 
 .erd-table {
+  position: absolute;
+  width: 220px;
   overflow: hidden;
   min-width: 0;
   border: 1px solid #40537d;
@@ -460,6 +462,8 @@
   background: #111827;
   box-shadow: 0 7px 20px rgba(0, 0, 0, .22);
 }
+.erd-table header { cursor: move; touch-action: none; user-select: none; }
+.erd-table.dragging { z-index: 5; box-shadow: 0 14px 34px rgba(0, 0, 0, .45); }
 
 .erd-table header {
   display: flex;

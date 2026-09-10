@@ -123,12 +123,6 @@ tr:last-child td { border-bottom: 0; }
 .hidden { display: none !important; }
 
 .pwa-controls { display: flex; align-items: center; gap: 8px; }
-.install-app {
-  border-color: #4f8cff;
-  color: #dce8ff;
-  background: rgba(79, 140, 255, .14);
-  white-space: nowrap;
-}
 .connection-status.offline {
   display: inline-flex;
   align-items: center;

@@ -349,8 +349,11 @@
             </defs>
           </svg>
           <div class="erd-grid">
-            ${tables.map((table) => `
-              <article class="erd-table" data-erd-table="${esc(table.name)}">
+            ${tables.map((table, index) => {
+              const x = 28 + (index % 3) * 290;
+              const y = 28 + Math.floor(index / 3) * 300;
+              return `
+              <article class="erd-table" data-erd-table="${esc(table.name)}" style="left:${x}px;top:${y}px">
                 <header>
                   <span>${esc(table.name)}</span>
                   <small>${table.columns.length}</small>
@@ -368,7 +371,8 @@
                   }).join("")}
                 </div>
               </article>
-            `).join("")}
+            `;
+            }).join("")}
           </div>
         </div>
       `;
@@ -377,7 +381,76 @@
         card.addEventListener("dblclick", () => this.openTable(card.dataset.erdTable));
       });
 
+      this.enableErdInteractions();
       requestAnimationFrame(() => this.drawRelations());
+    }
+
+    enableErdInteractions() {
+      const viewport = $("live-erd");
+      const stage = $("erd-stage");
+      if (!viewport || !stage) return;
+
+      const cards = [...stage.querySelectorAll(".erd-table")];
+      const maxBottom = Math.max(440, ...cards.map((card) => parseFloat(card.style.top) + card.offsetHeight + 40));
+      stage.style.width = "900px";
+      stage.style.height = `${maxBottom}px`;
+
+      let pan = null;
+      viewport.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || event.target.closest(".erd-table")) return;
+        pan = {
+          x: event.clientX,
+          y: event.clientY,
+          left: viewport.scrollLeft,
+          top: viewport.scrollTop,
+        };
+        viewport.classList.add("panning");
+        viewport.setPointerCapture(event.pointerId);
+      });
+      viewport.addEventListener("pointermove", (event) => {
+        if (!pan) return;
+        viewport.scrollLeft = pan.left - (event.clientX - pan.x);
+        viewport.scrollTop = pan.top - (event.clientY - pan.y);
+      });
+      const stopPan = () => {
+        pan = null;
+        viewport.classList.remove("panning");
+      };
+      viewport.addEventListener("pointerup", stopPan);
+      viewport.addEventListener("pointercancel", stopPan);
+
+      cards.forEach((card) => {
+        const handle = card.querySelector("header");
+        let drag = null;
+        handle.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          drag = {
+            x: event.clientX,
+            y: event.clientY,
+            left: parseFloat(card.style.left) || 0,
+            top: parseFloat(card.style.top) || 0,
+          };
+          card.classList.add("dragging");
+          handle.setPointerCapture(event.pointerId);
+        });
+        handle.addEventListener("pointermove", (event) => {
+          if (!drag) return;
+          const left = Math.max(8, drag.left + event.clientX - drag.x);
+          const top = Math.max(8, drag.top + event.clientY - drag.y);
+          card.style.left = `${left}px`;
+          card.style.top = `${top}px`;
+          stage.style.width = `${Math.max(900, left + card.offsetWidth + 40)}px`;
+          stage.style.height = `${Math.max(440, top + card.offsetHeight + 40)}px`;
+          this.drawRelations();
+        });
+        const stopDrag = () => {
+          drag = null;
+          card.classList.remove("dragging");
+        };
+        handle.addEventListener("pointerup", stopDrag);
+        handle.addEventListener("pointercancel", stopDrag);
+      });
     }
 
     drawRelations() {
