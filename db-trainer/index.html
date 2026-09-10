@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Тренажёр</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🐬 SQL Тренажёр</div>
+    <div class="progress" id="progress">Прогресс: 0 / 0</div>
+    <div class="topbar-actions">
+      <button id="btn-schema" class="ghost">Схема БД</button>
+      <button id="btn-sandbox" class="ghost">Свободный режим</button>
+      <button id="btn-reset" class="ghost danger">Сбросить прогресс</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Задания по уровням</div>
+      <nav id="task-list" class="task-list"></nav>
+    </aside>
+
+    <section class="content">
+      <div class="task-head">
+        <div>
+          <div class="task-level" id="task-level"></div>
+          <h2 id="task-title"></h2>
+        </div>
+        <span id="task-status" class="badge"></span>
+      </div>
+      <p class="task-desc" id="task-desc"></p>
+
+      <div class="controls">
+        <button id="btn-run" class="primary">▶ Проверить</button>
+        <button id="btn-hint" class="ghost">💡 Подсказка</button>
+        <button id="btn-solution" class="ghost">👁 Показать решение</button>
+        <button id="btn-clear" class="ghost">Очистить</button>
+      </div>
+
+      <textarea id="editor" spellcheck="false" placeholder="Введите ваш SQL-запрос..."></textarea>
+
+      <div id="feedback" class="feedback hidden"></div>
+
+      <div class="results">
+        <div class="results-col">
+          <div class="results-caption">Результат вашего запроса</div>
+          <div id="user-result" class="result-box"></div>
+        </div>
+        <div class="results-col">
+          <div class="results-caption">Ожидаемый результат</div>
+          <div id="expected-result" class="result-box"></div>
+        </div>
+      </div>
+
+      <div class="hint-box hidden" id="hint-box"></div>
+      <div class="solution-box hidden" id="solution-box"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-body">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="js/tasks.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
