@@ -72,9 +72,10 @@ function renderTable(result) {
     return '<div class="empty">0 строк</div>';
   }
 
-  const head = result.columns.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
+  const head = '<th class="row-number-head"></th>' +
+    result.columns.map((c) => `<th><span class="column-type">◇</span>${escapeHtml(c)}<span class="column-filter">▽</span></th>`).join("");
   const body = result.rows
-    .map((row) => `<tr>${row.map((value) => `<td>${
+    .map((row, rowIndex) => `<tr><td class="row-number">${rowIndex + 1}</td>${row.map((value) => `<td>${
       value === null
         ? '<span class="null-value">NULL</span>'
         : escapeHtml(value)
@@ -173,6 +174,7 @@ async function switchEngine(id) {
     updateEngineStatus(`${meta.label} готов`, "ready");
     $("sandbox-runtime-name").textContent = meta.label;
     $("sandbox-runtime-tech").textContent = meta.technology || meta.dialect || "runtime";
+    if ($("ide-engine-label")) $("ide-engine-label").textContent = meta.label;
     $("sandbox-result").innerHTML = '<div class="empty">Среда готова. Выполните команду.</div>';
     $("sandbox-feedback").textContent = "";
     syncSandboxDraft();
@@ -225,6 +227,7 @@ async function runSandbox() {
   try {
     const entry = await workbench.run(command);
     $("sandbox-result").innerHTML = renderTable(entry.result);
+    if (!$("result-tab-title").dataset.table) $("result-tab-title").textContent = "SQL Result";
     const rows = (entry.result && entry.result.rows && entry.result.rows.length) || 0;
     const message = entry.result && entry.result.error
       ? `Ошибка · ${entry.durationMs} ms`
@@ -432,6 +435,22 @@ function wireEvents() {
   $("engine-select").addEventListener("change", (event) => switchEngine(event.target.value));
 
   $("sandbox-run").addEventListener("click", runSandbox);
+  $("sandbox-refresh-result").addEventListener("click", runSandbox);
+  $("new-query-tab").addEventListener("click", () => {
+    $("result-tab-title").textContent = "SQL Result";
+    delete $("result-tab-title").dataset.table;
+    $("sandbox-editor").value = "";
+    $("sandbox-result").innerHTML = '<div class="empty">Новая SQL-консоль. Введите запрос ниже.</div>';
+    $("sandbox-feedback").textContent = "";
+    $("sandbox-editor").focus();
+  });
+  window.addEventListener("it-study-lab:open-table", async (event) => {
+    const tableName = event.detail && event.detail.tableName;
+    if (!tableName) return;
+    $("result-tab-title").textContent = tableName;
+    $("result-tab-title").dataset.table = tableName;
+    await runSandbox();
+  });
   $("sandbox-clear").addEventListener("click", () => {
     $("sandbox-editor").value = "";
     $("sandbox-editor").focus();

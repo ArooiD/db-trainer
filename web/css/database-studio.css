@@ -7,6 +7,99 @@
   background: #111827;
 }
 
+.ide-database-tree {
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #25292e;
+  overflow: auto;
+}
+.ide-database-tree .database-studio-head {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  min-height: 38px;
+  padding: 4px 7px 4px 11px;
+  border-bottom-color: #353a40;
+  background: #30343a;
+}
+.ide-database-tree .database-studio-head > div:first-child {
+  display: block;
+  min-width: 0;
+}
+.ide-database-tree .database-studio-title {
+  display: block;
+  color: #e0e3e7;
+  font-size: 12px;
+}
+.ide-database-tree .database-studio-head small { font-size: 9px; }
+.ide-database-tree .database-tool-tabs { gap: 1px; }
+.ide-database-tree .database-tool-tab,
+.ide-database-tree .database-refresh {
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border-radius: 3px;
+}
+.ide-database-tree .database-tool-panel { min-height: 0; }
+.ide-database-tree .schema-browser {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+.ide-database-tree .schema-table-list {
+  padding: 7px;
+  border-right: 0;
+  border-bottom: 1px solid #353a40;
+  background: #25292e;
+}
+.ide-database-tree .schema-table-item {
+  grid-template-columns: 19px minmax(0, 1fr);
+  gap: 5px;
+  margin: 0;
+  padding: 5px 6px;
+  border-radius: 3px;
+}
+.ide-database-tree .schema-table-item:hover { background: #30353b; }
+.ide-database-tree .schema-table-item.active { border-color: transparent; background: #17486f; }
+.ide-database-tree .schema-table-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  background: transparent;
+  color: #71a7e8;
+  font-size: 10px;
+}
+.ide-database-tree .schema-table-icon::before { content: "▦"; }
+.ide-database-tree .schema-table-icon { font-size: 0; }
+.ide-database-tree .schema-table-copy strong { font-size: 11px; font-weight: 500; }
+.ide-database-tree .schema-table-copy small { display: none; }
+.ide-database-tree .schema-detail {
+  padding: 10px;
+  background: #20242a;
+}
+.ide-database-tree .schema-detail-head { margin-bottom: 8px; }
+.ide-database-tree .schema-detail-head h3 { font-size: 13px; }
+.ide-database-tree .schema-detail-head .small-action { font-size: 9px; }
+.ide-database-tree .schema-columns-wrap { border-radius: 3px; }
+.ide-database-tree .schema-columns { font-size: 9px; }
+.ide-database-tree .schema-columns th,
+.ide-database-tree .schema-columns td { padding: 5px; }
+.ide-database-tree .schema-columns th:nth-child(3),
+.ide-database-tree .schema-columns td:nth-child(3),
+.ide-database-tree .schema-columns th:nth-child(4),
+.ide-database-tree .schema-columns td:nth-child(4),
+.ide-database-tree .schema-columns th:nth-child(5),
+.ide-database-tree .schema-columns td:nth-child(5) { display: none; }
+.ide-database-tree .schema-detail-grid { grid-template-columns: 1fr; }
+.ide-database-tree .database-panel-note { font-size: 10px; }
+.ide-database-tree .database-panel-note-action { align-items: stretch; flex-direction: column; }
+.ide-database-tree .load-layout { grid-template-columns: 1fr; }
+.ide-database-tree .load-config,
+.ide-database-tree .load-results { padding: 12px; }
+
 .database-studio-head {
   display: flex;
   align-items: center;

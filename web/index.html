@@ -43,87 +43,71 @@
   </header>
 
   <section id="sandbox-view" class="product-view">
-    <div class="studio-layout">
-      <aside class="module-rail">
-        <div class="rail-title">Лаборатории</div>
-
-        <button class="module-card active">
-          <span class="module-icon">DB</span>
-          <span>
-            <strong>Базы данных</strong>
-            <small>SQLite · PostgreSQL</small>
-          </span>
-          <span class="module-state ready">ready</span>
-        </button>
-
-        <button class="module-card" data-future-module data-title="Программирование" data-description="Редактор программ, stdout/stderr, файлы и запуск Python/JavaScript через браузерные runtimes.">
-          <span class="module-icon">⌘</span>
-          <span><strong>Программирование</strong><small>Python · JavaScript</small></span>
-          <span class="module-state">next</span>
-        </button>
-
-        <button class="module-card" data-future-module data-title="Операционные системы" data-description="Интерактивный Linux terminal, файловая система, процессы, сигналы и визуализаторы.">
-          <span class="module-icon">OS</span>
-          <span><strong>Операционные системы</strong><small>Linux · processes · FS</small></span>
-          <span class="module-state">planned</span>
-        </button>
-
-        <button class="module-card" data-future-module data-title="Специальные программные продукты" data-description="Dockerfile, Compose, контейнеры, сети, volumes и визуальная модель слоёв.">
-          <span class="module-icon">◫</span>
-          <span><strong>Docker / Software</strong><small>Docker · Compose · CI/CD</small></span>
-          <span class="module-state">planned</span>
-        </button>
+    <div class="database-ide">
+      <aside class="ide-activity-bar" aria-label="Лаборатории">
+        <button class="activity-button active" title="Базы данных"><span>▦</span><small>DB</small></button>
+        <button class="activity-button" data-future-module data-title="Программирование" data-description="Редактор программ, stdout/stderr, файлы и запуск Python/JavaScript через браузерные runtimes." title="Программирование"><span>⌘</span><small>Code</small></button>
+        <button class="activity-button" data-future-module data-title="Операционные системы" data-description="Интерактивный Linux terminal, файловая система, процессы, сигналы и визуализаторы." title="Операционные системы"><span>›_</span><small>OS</small></button>
+        <button class="activity-button" data-future-module data-title="Специальные программные продукты" data-description="Dockerfile, Compose, контейнеры, сети, volumes и визуальная модель слоёв." title="Docker / Software"><span>◫</span><small>Dev</small></button>
       </aside>
 
-      <main class="workspace">
-        <div class="workspace-head">
-          <div>
-            <div class="workspace-kicker">Sandbox / Databases</div>
-            <h1>Database Sandbox</h1>
-            <p>Создавайте собственные схемы, наполняйте их данными, исследуйте структуру и проверяйте запросы прямо в браузере.</p>
-          </div>
-          <div class="runtime-card">
-            <span id="sandbox-runtime-name">SQLite</span>
-            <small id="sandbox-runtime-tech">sql.js / WASM</small>
-          </div>
+      <main class="ide-main">
+        <div class="ide-document-tabs">
+          <button class="ide-document-tab active"><span class="tab-table-icon">▦</span><span id="result-tab-title">SQL Result</span><span class="tab-close">×</span></button>
+          <button id="new-query-tab" class="ide-new-tab" title="Новый запрос">＋</button>
+          <div class="ide-runtime-caption"><span id="sandbox-runtime-name">SQLite</span><small id="sandbox-runtime-tech">sql.js / WASM</small></div>
         </div>
 
-        <div class="workspace-toolbar">
-          <button id="sandbox-run" class="primary">▶ Run <kbd>Ctrl↵</kbd></button>
-          <button id="sandbox-clear">Очистить</button>
-          <button id="sandbox-schema">Schema SQL</button>
-          <button id="sandbox-design">ER Designer</button>
-          <button id="sandbox-reset" class="danger">Reset runtime</button>
-          <span id="sandbox-feedback" class="inline-feedback"></span>
-        </div>
+        <div class="ide-workspace">
+          <section class="ide-center">
+            <div class="data-toolbar">
+              <button id="sandbox-refresh-result" title="Повторить запрос">↻</button>
+              <button id="sandbox-run" class="primary" title="Выполнить запрос">▶ Run <kbd>Ctrl↵</kbd></button>
+              <span class="toolbar-separator"></span>
+              <button id="sandbox-clear" title="Новый запрос">＋ SQL</button>
+              <button id="sandbox-schema">DDL</button>
+              <button id="sandbox-design">ER Diagram</button>
+              <span id="sandbox-feedback" class="inline-feedback"></span>
+            </div>
 
-        <div class="workbench-grid">
-          <section class="editor-card">
-            <div class="panel-head"><span>SQL Console</span><small>DDL, DML и многострочные запросы поддерживаются</small></div>
-            <textarea id="sandbox-editor" class="workbench-editor" spellcheck="false" aria-label="SQL console"></textarea>
+            <section class="output-card ide-data-grid">
+              <div class="grid-filter-row">
+                <span>⌯</span><span>WHERE</span>
+                <span class="grid-order">≡ &nbsp; ORDER BY</span>
+              </div>
+              <div id="sandbox-result" class="result-box workbench-output"><div class="empty">Среда запускается…</div></div>
+            </section>
+
+            <section class="ide-console-dock">
+              <div class="console-tabs">
+                <button class="console-tab active">Query console</button>
+                <button class="console-tab">Output</button>
+                <span class="console-spacer"></span>
+                <button id="sandbox-reset" class="danger subtle">Reset runtime</button>
+              </div>
+              <div class="console-layout">
+                <section class="editor-card">
+                  <div class="panel-head"><span>console.sql</span><small>DDL · DML · Ctrl/Cmd + Enter</small></div>
+                  <textarea id="sandbox-editor" class="workbench-editor" spellcheck="false" aria-label="SQL console"></textarea>
+                </section>
+                <aside class="history-card">
+                  <div class="panel-head"><span>History</span><button id="sandbox-clear-history" class="link-button">очистить</button></div>
+                  <div id="sandbox-history" class="history-list"></div>
+                </aside>
+              </div>
+            </section>
           </section>
 
-          <aside class="history-card">
-            <div class="panel-head"><span>История</span><button id="sandbox-clear-history" class="link-button">очистить</button></div>
-            <div id="sandbox-history" class="history-list"></div>
-          </aside>
-        </div>
-
-        <section class="output-card">
-          <div class="panel-head"><span>Output</span><small>Результат текущего runtime</small></div>
-          <div id="sandbox-result" class="result-box workbench-output"><div class="empty">Среда запускается…</div></div>
-        </section>
-
-        <section id="database-studio" class="database-studio-card">
+          <section id="database-studio" class="database-studio-card ide-database-tree">
           <div class="database-studio-head">
             <div>
-              <span class="database-studio-title">Database Inspector</span>
+              <span class="database-studio-title">Database</span>
               <small id="db-inspector-status">чтение структуры…</small>
             </div>
             <div class="database-tool-tabs" role="tablist" aria-label="Инструменты базы данных">
-              <button class="database-tool-tab active" data-db-tool-tab="structure">Structure</button>
-              <button class="database-tool-tab" data-db-tool-tab="erd">Live ERD</button>
-              <button class="database-tool-tab" data-db-tool-tab="load">Load Lab</button>
+              <button class="database-tool-tab active" data-db-tool-tab="structure" title="Структура">▦</button>
+              <button class="database-tool-tab" data-db-tool-tab="erd" title="ERD">⌁</button>
+              <button class="database-tool-tab" data-db-tool-tab="load" title="Нагрузка">◴</button>
               <button id="db-inspector-refresh" class="database-refresh" title="Обновить структуру">↻</button>
             </div>
           </div>
@@ -194,7 +178,14 @@
               </aside>
             </div>
           </div>
-        </section>
+          </section>
+        </div>
+        <div class="ide-statusbar">
+          <span>● <strong id="ide-engine-label">SQLite</strong></span>
+          <span>browser runtime</span>
+          <span class="statusbar-spacer"></span>
+          <span>IT Study Lab</span>
+        </div>
       </main>
     </div>
   </section>

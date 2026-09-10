@@ -253,7 +253,9 @@
       if (!editor) return;
       editor.value = `SELECT *\nFROM ${quoteIdent(tableName)}\nLIMIT 100;`;
       editor.focus();
-      window.scrollTo({ top: Math.max(0, editor.getBoundingClientRect().top + window.scrollY - 110), behavior: "smooth" });
+      window.dispatchEvent(new CustomEvent("it-study-lab:open-table", {
+        detail: { tableName },
+      }));
     }
 
     designerDDL(model) {
