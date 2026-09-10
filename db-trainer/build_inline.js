@@ -18,6 +18,7 @@ const scripts = [
   "js/data.js",
   "js/tasks.js",
   "js/db.js",
+  "js/design.js",
   "js/app.js",
 ].map(read);
 

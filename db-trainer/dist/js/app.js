@@ -303,6 +303,7 @@ $("btn-solution").addEventListener("click", () => {
 });
 $("btn-clear").addEventListener("click", () => ($("editor").value = ""));
 $("btn-schema").addEventListener("click", showSchema);
+$("btn-design").addEventListener("click", () => window.Designer.open(sandboxMode ? null : currentTask));
 $("btn-sandbox").addEventListener("click", enableSandbox);
 $("btn-reset").addEventListener("click", () => {
   if (!confirm("Сбросить прогресс и все черновики?")) return;

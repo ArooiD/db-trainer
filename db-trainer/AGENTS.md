@@ -34,6 +34,14 @@
 - Не тянуть sql.js/WASM с внешнего CDN в рантайме — берём **vendored** файлы из `web/vendor/` (CDN может быть недоступен офлайн); при необходимости обновить — скачать и закоммитить в `web/vendor/`, затем `tools/gen_data.py` для base64-версии.
 - Не конвертировать `tasks.js` в Python регулярками: кириллица + кавычки ломают простой regex-конвертер; держим задания в JS.
 
+## Режим проектирования (web/js/design.js)
+- Полноэкранный canvas-редактор ER-схемы, вызов `window.Designer.open(task|null)`, кнопка `#btn-design` в topbar (sandboxMode → open(null)).
+- Модель `{tables:[{id,name,x,y,columns:[{name,type,pk,fk:{tableId,column}}]}]}` хранится в localStorage по ключу `sqltr.design.<taskId|sandbox>`; автосейв на любом изменении.
+- Связь FK рисуется перетаскиванием с «точки» справа от колонки (`linkDrag`) на целевую таблицу → `connect()` создаёт колонку `<target>_id` с fk.
+- `genDDL()` делает топосортировку по fk (рекурсивный `visit` ОБЯЗАТЕЛЬНО именованная `function`, а не function-expression — иначе `visit` не виден снаружи, ReferenceError).
+- design.js должен идти в инлайн-сборке ДО app.js (app.js ссылается на window.Designer по клику).
+- Canvas скрывается тем же `.hidden`(!important) — при тесте в браузере не полагаться на скриншоты rrweb (рисуют скрытые слои); проверять через get_state/get_content.
+
 ## Один файл dist-standalone/index.html
 - `node build_inline.js` — самый простой для студента вариант: всё вшито в один index.html (CSS, JS, wasm в base64), ноль внешних запросов, гарантированно работает по file://.
 - Механизм: из web/index.html вырезаются `<link>` и `<script src>`, содержимое файлов вшивается в `<style>`/`<script>` в порядке: движок (sql-wasm.js), бинарник (sql-binary.js), данные, задания, обёртка БД (db.js), UI (app.js). Билдер проверяет отсутствие `</script>` в файлах перед инлайном.

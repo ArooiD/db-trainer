@@ -148,3 +148,56 @@ tr:last-child td { border-bottom: 0; }
   .sidebar { position: static; max-height: none; }
   .results { grid-template-columns: 1fr; }
 }
+
+/* ---------- Режим проектирования ---------- */
+.designer {
+  position: fixed; inset: 0; z-index: 50;
+  background: #0b1120; display: flex; flex-direction: column;
+}
+.designer-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; border-bottom: 1px solid #2b3450; background: #111a2e;
+}
+.designer-bar .brand { font-weight: 700; }
+.designer-bar button { margin-left: auto; }
+.designer-inner {
+  flex: 1; min-height: 0;
+  display: grid; grid-template-columns: 1fr 340px;
+}
+.designer-stage { position: relative; min-width: 0; }
+.schema-canvas, #d-canvas { display: block; touch-action: none; }
+.designer-side {
+  border-left: 1px solid #2b3450; background: #111a2e;
+  padding: 14px 16px; overflow-y: auto;
+}
+.designer-side h3 { margin: 0 0 8px; font-size: 15px; }
+.designer-task { color: #8a97b3; font-size: 13px; margin-bottom: 12px; }
+.dtoolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.tlist { display: flex; flex-direction: column; gap: 4px; }
+.tlist-item {
+  text-align: left; background: #171e2e; border: 1px solid #2b3450;
+  color: #e6ebf5; padding: 6px 10px; border-radius: 7px; cursor: pointer;
+  font-family: inherit; font-size: 13px;
+}
+.tlist-item.active { border-color: #4f8cff; }
+.col-row {
+  display: grid; grid-template-columns: 1fr 84px 26px 30px;
+  gap: 6px; align-items: center; margin-bottom: 6px;
+}
+.col-row input, .col-row select {
+  background: #0b1120; border: 1px solid #2b3450; color: #e6ebf5;
+  border-radius: 6px; padding: 5px 7px; font-family: inherit; font-size: 13px;
+}
+.col-row .c-pk { width: auto; justify-self: center; }
+.fk-hint { margin: -2px 0 8px 2px; }
+.sql-out {
+  background: #0b1120; border: 1px solid #2b3450; border-radius: 8px;
+  padding: 10px 12px; font-family: Consolas, monospace; font-size: 12px;
+  white-space: pre-wrap; word-break: break-word; color: #9fe7c7; max-height: 240px;
+  overflow-y: auto;
+}
+@media (max-width: 900px) {
+  .designer-inner { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  .designer-side { border-left: none; border-top: 1px solid #2b3450; max-height: 45vh; }
+}
+
