@@ -1,0 +1,10 @@
+{
+  "name": "db-trainer-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SQL тренажёр, работающий полностью в браузере (sql.js/WASM). dist/index.html открывается без сервера.",
+  "scripts": {
+    "gen-data": "python3 tools/gen_data.py",
+    "build": "node build_dist.js"
+  }
+}

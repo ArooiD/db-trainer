@@ -1,34 +1,58 @@
 # SQL Тренажёр
 
 Веб-тренажёр для изучения SQL (SQLite) на примерах базы «сотрудники — отделы —
-проекты». Полностью на стандартной библиотеке Python, без внешних зависимостей
-и без интернета.
+проекты». SQLite выполняется прямо в браузере (sql.js/WASM) — сервер не нужен,
+интернет не нужен.
 
-## Запуск
+## Студентам: открыть в браузере
+
+Скачайте папку `dist/` целиком и откройте `dist/index.html` двойным щелчком.
+Ничего устанавливать не нужно.
+
+Если при открытии по адресу `file://…/index.html` база не поднялась (некоторые
+браузеры блокируют загрузку `.wasm` по `file://`) — поднимите локальный сервер
+из папки `dist/` любой удобной командой и откройте http://localhost:8000:
 
 ```bash
-cd db-trainer
-python3 app.py
+# любой из вариантов
+python3 -m http.server 8000
+npx serve
+php -S localhost:8000
 ```
 
-Откройте http://localhost:12000 (порт задаётся в `app.py`, функция `main`).
+Важно: `index.html` один не работает — нужна вся папка `dist/` (там `js/`,
+`css/`, `vendor/`). Прогресс и черновики хранятся в `localStorage` браузера.
 
-## Как это работает
+## Что внутри dist/
 
-- `app.py` — сервер: отдаёт статику и выполняет SQL через SQLite.
-  - `POST /api/execute` с телом `{"sql": "..."}` — запускает запрос на свежей
-    копии базы в памяти и возвращает `{"columns", "rows"}` или `{"error"}`.
-    Каждое выполнение создаёт новую БД, поэтому `INSERT/UPDATE/DELETE`
-    безопасны и не влияют на соседние проверки.
-  - `GET /api/schema` — текст со схемой для окна «Схема БД».
-- `js/tasks.js` — список заданий (заголовок, описание, подсказка, решение).
-  Правильность ответа не хранится в задаче: при проверке сервер выполняет и
-  запрос пользователя, и эталонное `solution`, а фронтенд сравнивает результаты.
-- `seed.py` — схема и данные учебной базы (единый источник для сервера).
-- `index.html`, `css/style.css`, `js/app.js` — интерфейс.
+- `index.html` — точка входа.
+- `js/app.js` — интерфейс и сравнение результатов;
+  `js/db.js` — обёртка над sql.js (init + выполнение SQL);
+  `js/data.js` — схема и данные учебной базы;
+  `js/tasks.js` — задания.
+- `vendor/sql-wasm.js` + `vendor/sql-wasm.wasm` — SQLite (WASM).
+- `vendor/sql-binary.js` — тот же wasm, вшитый base64 (нужен для работы по `file://`).
 
-Прогресс и черновики хранятся в `localStorage` браузера (кнопка «Сбросить
-прогресс» их очищает).
+## Как собрать dist/ из исходников
+
+```bash
+python3 tools/gen_data.py   # перегенерировать js/data.js и vendor из seed.py + wasm
+node build_dist.js          # собрать dist/ из web/
+```
+
+Единые источники: схема и данные — `seed.py`; задания — `js/tasks.js`;
+логика сравнения — `web/js/app.js`. `dist/` — только сборка, руками не правится.
+
+## Альтернатива: Python-сервер (для разработки)
+
+```bash
+python3 app.py              # http://localhost:12000
+python3 build_single.py     # единый файл dist-python/sql-trainer.py
+```
+
+`app.py` выполняет SQL через стандартный `sqlite3` (POST `/api/execute` на свежей
+копии БД, поэтому `INSERT/UPDATE/DELETE` студента безопасны). `build_single.py`
+собирает `dist-python/sql-trainer.py` — один файл на stdlib (`python3 sql-trainer.py`).
 
 ## Сравнение результатов
 
@@ -52,10 +76,10 @@ python3 app.py
 }
 ```
 
-`level` — номер уровня (1–7, названия в `js/app.js`, `LEVEL_NAMES`). После
-сохранения обновите страницу.
+`level` — номер уровня (1–7, названия в `LEVEL_NAMES`). После правки
+`python3 tools/gen_data.py && node build_dist.js`.
 
 ## Как изменить данные
 
 Правьте `seed.py` (таблицы `DEPARTMENTS`, `EMPLOYEES`, `PROJECTS`,
-`ASSIGNMENTS`) и перезапустите `app.py`.
+`ASSIGNMENTS`), затем `python3 tools/gen_data.py && node build_dist.js`.
