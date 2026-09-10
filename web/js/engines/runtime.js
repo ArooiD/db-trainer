@@ -39,7 +39,15 @@
       });
     }
 
-    async use(id) {
+    async createIsolated(id, options = {}) {
+      const item = this.registry.get(id);
+      if (!item) throw new Error(`Unknown lab engine: ${id}`);
+      const engine = item.factory();
+      await engine.init(options);
+      return engine;
+    }
+
+    async use(id, options = {}) {
       const item = this.registry.get(id);
       if (!item) throw new Error(`Unknown lab engine: ${id}`);
       let engine = this.instances.get(id);
@@ -47,21 +55,21 @@
         engine = item.factory();
         this.instances.set(id, engine);
       }
-      if (!engine.ready) await engine.init();
+      if (!engine.ready) await engine.init(options);
       this.active = engine;
       this.activeId = id;
       this._emit();
       return engine;
     }
 
-    async execute(command) {
+    async execute(command, options = {}) {
       if (!this.active) throw new Error("No active lab engine");
-      return this.active.execute(command);
+      return this.active.execute(command, options);
     }
 
-    async reset() {
+    async reset(options = {}) {
       if (!this.active) throw new Error("No active lab engine");
-      return this.active.reset();
+      return this.active.reset(options);
     }
 
     schemaDoc() { return this.active ? this.active.schemaDoc() : ""; }
