@@ -2,26 +2,31 @@
 
 Веб-тренажёр для изучения SQL (SQLite) на примерах базы «сотрудники — отделы —
 проекты». SQLite выполняется прямо в браузере (sql.js/WASM) — сервер не нужен,
-интернет не нужен.
+интернет не нужен, устанавливать нечего.
 
-## Студентам: открыть в браузере
+## Студентам: один файл
 
-Скачайте папку `dist/` целиком и откройте `dist/index.html` двойным щелчком.
-Ничего устанавливать не нужно.
+Скачайте `dist-standalone/index.html` и откройте двойным щелчком. Всё —
+интерфейс, задания, данные и движок SQLite — внутри этого одного файла,
+никаких запросов наружу он не делает. Работает офлайн в любом современном
+браузере.
 
-Если при открытии по адресу `file://…/index.html` база не поднялась (некоторые
-браузеры блокируют загрузку `.wasm` по `file://`) — поднимите локальный сервер
-из папки `dist/` любой удобной командой и откройте http://localhost:8000:
+## Запасной вариант: папка dist/
+
+Если по какой-то причине нужен вариант с раздельными файлами — скачайте папку
+`dist/` целиком и откройте `dist/index.html`. Движок SQLite грузится там
+отдельным `.wasm`, и некоторые браузеры блокируют такую загрузку по `file://`;
+тогда поднимите из папки `dist/` любой раздатчик статики (это не сервер
+приложения, а просто раздача файлов) и откройте http://localhost:8000:
 
 ```bash
-# любой из вариантов
 python3 -m http.server 8000
 npx serve
 php -S localhost:8000
 ```
 
-Важно: `index.html` один не работает — нужна вся папка `dist/` (там `js/`,
-`css/`, `vendor/`). Прогресс и черновики хранятся в `localStorage` браузера.
+Важно: `dist/index.html` в одиночку не работает — нужна вся папка `dist/`.
+Прогресс и черновики в обоих случаях хранятся в `localStorage` браузера.
 
 ## Что внутри dist/
 
@@ -33,12 +38,18 @@ php -S localhost:8000
 - `vendor/sql-wasm.js` + `vendor/sql-wasm.wasm` — SQLite (WASM).
 - `vendor/sql-binary.js` — тот же wasm, вшитый base64 (нужен для работы по `file://`).
 
-## Как собрать dist/ из исходников
+## Как собрать из исходников
 
 ```bash
-python3 tools/gen_data.py   # перегенерировать js/data.js и vendor из seed.py + wasm
-node build_dist.js          # собрать dist/ из web/
+python3 tools/gen_data.py    # перегенерировать js/data.js и vendor из seed.py + wasm
+node build_dist.js           # собрать папку dist/ из web/
+node build_inline.js         # собрать dist-standalone/index.html (один файл)
 ```
+
+`build_inline.js` берёт каркас из `web/index.html`, вырезает из него `<link>` и
+внешние `<script src>` и вшивает содержимое CSS и JS-файлов (в порядке: движок →
+бинарник wasm → данные → задания → обёртка БД → UI). Перед вшиванием проверяется,
+что ни один файл не содержит `</script>` — иначе инлайн сломал бы разметку.
 
 Единые источники: схема и данные — `seed.py`; задания — `js/tasks.js`;
 логика сравнения — `web/js/app.js`. `dist/` — только сборка, руками не правится.
@@ -76,10 +87,11 @@ python3 build_single.py     # единый файл dist-python/sql-trainer.py
 }
 ```
 
-`level` — номер уровня (1–7, названия в `LEVEL_NAMES`). После правки
-`python3 tools/gen_data.py && node build_dist.js`.
+`level` — номер уровня (1–7, названия в `LEVEL_NAMES`). После правки пересоберите
+сборки: `python3 tools/gen_data.py && node build_dist.js && node build_inline.js`.
 
 ## Как изменить данные
 
 Правьте `seed.py` (таблицы `DEPARTMENTS`, `EMPLOYEES`, `PROJECTS`,
-`ASSIGNMENTS`), затем `python3 tools/gen_data.py && node build_dist.js`.
+`ASSIGNMENTS`), затем пересоберите:
+`python3 tools/gen_data.py && node build_dist.js && node build_inline.js`.

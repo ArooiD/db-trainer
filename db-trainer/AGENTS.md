@@ -32,3 +32,8 @@
 ## Не делать
 - Не тянуть sql.js/WASM с внешнего CDN в рантайме — берём **vendored** файлы из `web/vendor/` (CDN может быть недоступен офлайн); при необходимости обновить — скачать и закоммитить в `web/vendor/`, затем `tools/gen_data.py` для base64-версии.
 - Не конвертировать `tasks.js` в Python регулярками: кириллица + кавычки ломают простой regex-конвертер; держим задания в JS.
+
+## Один файл dist-standalone/index.html
+- `node build_inline.js` — самый простой для студента вариант: всё вшито в один index.html (CSS, JS, wasm в base64), ноль внешних запросов, гарантированно работает по file://.
+- Механизм: из web/index.html вырезаются `<link>` и `<script src>`, содержимое файлов вшивается в `<style>`/`<script>` в порядке: движок (sql-wasm.js), бинарник (sql-binary.js), данные, задания, обёртка БД (db.js), UI (app.js). Билдер проверяет отсутствие `</script>` в файлах перед инлайном.
+- Пересборка после правок: `python3 tools/gen_data.py && node build_dist.js && node build_inline.js`.
