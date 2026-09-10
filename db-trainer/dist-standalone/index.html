@@ -187,7 +187,9 @@ tr:last-child td { border-bottom: 0; }
 .solution-box pre { margin: 8px 0 0; color: #e6ebf5; white-space: pre-wrap; }
 .hint-box, .solution-box pre { font-family: Consolas, monospace; font-size: 13px; }
 
-.hidden { display: none; }
+/* Utility-класс скрытия: должен перебивать любой компонентный display
+   (например .modal { display: flex }), независимо от порядка объявления. */
+.hidden { display: none !important; }
 
 .modal {
   position: fixed; inset: 0; background: rgba(4,8,18,.7);
