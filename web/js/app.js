@@ -151,6 +151,10 @@ function renderLectures() {
   const courseList = $("course-list");
   if (!courseList || !COURSES.length) return;
 
+  const readyCount = COURSES.filter((item) => item.status === "available").length;
+  $("lectures-ready-count").textContent = String(readyCount);
+  $("lectures-ready-label").textContent = readyCount === 1 ? "курс доступен" : "курса доступны";
+
   const course = COURSES.find((item) => item.id === activeCourseId) || COURSES[0];
   activeCourseId = course.id;
   const lecture = course.lectures.find((item) => item.id === activeLectureId) || course.lectures[0];
@@ -214,10 +218,17 @@ function renderLectureReader(course, lecture) {
         ${lecture.theory.map((point, index) => `<section><span>${index + 1}</span><p>${escapeHtml(point)}</p></section>`).join("")}
       </div>
       <div class="lecture-practice"><small>Практическое продолжение</small><p>${escapeHtml(lecture.practice)}</p></div>
-      <div class="lecture-actions">
-        <button class="primary" id="lecture-open-sandbox">Открыть Sandbox</button>
-        <button id="lecture-open-tests">Перейти к Tests</button>
-      </div>
+      ${course.id === "databases" ? `
+        <div class="lecture-actions">
+          <button class="primary" id="lecture-open-sandbox">Открыть Database Sandbox</button>
+          <button id="lecture-open-tests">Перейти к SQL Tests</button>
+        </div>
+      ` : `
+        <div class="lecture-actions">
+          <button class="primary" disabled>Programming Sandbox · следующий этап</button>
+          <span class="lecture-runtime-status">Лекции готовы · runtime подключается отдельно</span>
+        </div>
+      `}
     ` : `
       <div class="lecture-placeholder">
         <span>Содержание готовится</span>
