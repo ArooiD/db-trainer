@@ -15,6 +15,7 @@ const scripts = [
   "vendor/sql-binary.js",
   "js/data.js",
   "js/tasks.js",
+  "js/lectures.js",
   "js/engines/lab-engine.js",
   "js/engines/runtime.js",
   "js/engines/sqlite-engine.js",

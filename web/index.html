@@ -26,6 +26,7 @@
     <nav class="mode-tabs" aria-label="Режим работы">
       <button id="tab-sandbox" class="mode-tab active">Sandbox</button>
       <button id="tab-tests" class="mode-tab">Tests</button>
+      <button id="tab-lectures" class="mode-tab">Лекции</button>
     </nav>
 
     <div class="runtime-switch">
@@ -189,6 +190,31 @@
     </div>
   </section>
 
+  <section id="lectures-view" class="product-view lectures-view hidden">
+    <header class="lectures-header">
+      <div>
+        <div class="workspace-kicker">IT Study Lab / Learning</div>
+        <h1>Лекции и курсы</h1>
+        <p>Теория связана с практикой: после лекции можно перейти в соответствующую песочницу или режим Tests.</p>
+      </div>
+      <div class="lectures-summary"><strong id="lectures-ready-count">1</strong><span>курс доступен</span></div>
+    </header>
+
+    <div class="lectures-shell">
+      <aside class="course-catalog">
+        <div class="lecture-panel-title">Курсы</div>
+        <nav id="course-list" class="course-list" aria-label="Список курсов"></nav>
+      </aside>
+      <main class="lecture-workspace">
+        <div id="course-overview" class="course-overview"></div>
+        <div class="lecture-content-grid">
+          <nav id="lecture-list" class="lecture-list" aria-label="Темы курса"></nav>
+          <article id="lecture-reader" class="lecture-reader"></article>
+        </div>
+      </main>
+    </div>
+  </section>
+
   <section id="tests-view" class="product-view hidden">
     <div class="tests-intro">
       <div>
@@ -248,6 +274,7 @@
   <script src="vendor/sql-binary.js"></script>
   <script src="js/data.js"></script>
   <script src="js/tasks.js"></script>
+  <script src="js/lectures.js"></script>
   <script src="js/engines/lab-engine.js"></script>
   <script src="js/engines/runtime.js"></script>
   <script src="js/engines/sqlite-engine.js"></script>

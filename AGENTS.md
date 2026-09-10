@@ -17,6 +17,7 @@ IT Study Lab — browser-first интерактивная песочница д�
 - `web/js/engines/` — технологические adapters.
 - `web/js/db.js` — совместимый DB facade над `LabRuntime`.
 - `web/js/tasks.js` — только контент блока SQL Tests / Practice.
+- `web/js/lectures.js` — каталог курсов и контент вкладки Lectures.
 - `web/js/design.js` — ER Designer.
 - `web/js/data.js` — browser dataset.
 - `seed.py` — исходные учебные данные.
@@ -73,6 +74,10 @@ Tests — отдельная вкладка.
 При проверке теста runtime должен быть изолирован от свободной Sandbox-сессии настолько, насколько это позволяет текущая реализация. Перед выполнением пользовательского решения и эталонного solution база сбрасывается к reference dataset.
 
 Не превращать Sandbox обратно в интерфейс «введи ответ → сравни с solution».
+
+## Lectures
+
+Lectures — отдельный data-driven режим. Текущий каталог: базы данных, программирование IT-систем, операционные системы и специальные программные продукты. Контент курса не встраивать в `app.js`: описания и лекции хранятся в `web/js/lectures.js`.
 
 ## Runtime API
 

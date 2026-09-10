@@ -1,5 +1,6 @@
 // IT Study Lab — sandbox-first shell with Tests as a separate learning mode.
 const TASKS = window.DB_TASKS || [];
+const COURSES = window.IT_STUDY_COURSES || [];
 const runtime = window.ITStudyLab.runtime;
 const WorkbenchSession = window.ITStudyLab.WorkbenchSession;
 const workbench = new WorkbenchSession(runtime);
@@ -21,6 +22,8 @@ const $ = (id) => document.getElementById(id);
 let currentTask = null;
 let solved = loadSet(STORE_DONE);
 let activeMode = "sandbox";
+let activeCourseId = COURSES[0]?.id || "";
+let activeLectureId = COURSES[0]?.lectures?.[0]?.id || "";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -122,24 +125,108 @@ function resultsMatch(a, b, ordered) {
 }
 
 function setMode(mode) {
-  activeMode = mode === "tests" ? "tests" : "sandbox";
+  activeMode = ["sandbox", "tests", "lectures"].includes(mode) ? mode : "sandbox";
   $("sandbox-view").classList.toggle("hidden", activeMode !== "sandbox");
   $("tests-view").classList.toggle("hidden", activeMode !== "tests");
+  $("lectures-view").classList.toggle("hidden", activeMode !== "lectures");
   $("tab-sandbox").classList.toggle("active", activeMode === "sandbox");
   $("tab-tests").classList.toggle("active", activeMode === "tests");
+  $("tab-lectures").classList.toggle("active", activeMode === "lectures");
   $("progress").classList.toggle("hidden", activeMode !== "tests");
 
   const url = new URL(location.href);
-  if (activeMode === "tests") url.searchParams.set("mode", "tests");
-  else url.searchParams.delete("mode");
+  if (activeMode === "sandbox") url.searchParams.delete("mode");
+  else url.searchParams.set("mode", activeMode);
   history.replaceState(null, "", url);
 
   if (activeMode === "sandbox") {
     syncSandboxDraft();
     $("sandbox-editor").focus();
   } else if (!currentTask && TASKS.length) {
-    selectTask(TASKS[0].id);
+    if (activeMode === "tests") selectTask(TASKS[0].id);
   }
+}
+
+function renderLectures() {
+  const courseList = $("course-list");
+  if (!courseList || !COURSES.length) return;
+
+  const course = COURSES.find((item) => item.id === activeCourseId) || COURSES[0];
+  activeCourseId = course.id;
+  const lecture = course.lectures.find((item) => item.id === activeLectureId) || course.lectures[0];
+  activeLectureId = lecture?.id || "";
+
+  courseList.innerHTML = COURSES.map((item) => `
+    <button class="course-card ${item.id === course.id ? "active" : ""}" data-course-id="${escapeHtml(item.id)}" style="--course-accent:${escapeHtml(item.accent)}">
+      <span class="course-code">${escapeHtml(item.code)}</span>
+      <span class="course-card-copy"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.runtime)}</small></span>
+      <span class="course-status ${item.status}">${item.status === "available" ? "доступен" : "заготовка"}</span>
+    </button>
+  `).join("");
+
+  $("course-overview").innerHTML = `
+    <div>
+      <span class="course-badge" style="--course-accent:${escapeHtml(course.accent)}">${escapeHtml(course.code)}</span>
+      <div class="course-heading">
+        <small>${course.status === "available" ? "Активный курс" : "Каркас курса"}</small>
+        <h2>${escapeHtml(course.title)}</h2>
+        <p>${escapeHtml(course.description)}</p>
+      </div>
+    </div>
+    <div class="course-meta"><strong>${course.lectures.length}</strong><span>темы</span><small>${escapeHtml(course.runtime)}</small></div>
+  `;
+
+  $("lecture-list").innerHTML = course.lectures.map((item, index) => `
+    <button class="lecture-item ${item.id === activeLectureId ? "active" : ""}" data-lecture-id="${escapeHtml(item.id)}">
+      <span class="lecture-index">${String(index + 1).padStart(2, "0")}</span>
+      <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.level)} · ${escapeHtml(item.duration)}</small></span>
+    </button>
+  `).join("");
+
+  if (lecture) renderLectureReader(course, lecture);
+
+  courseList.querySelectorAll("[data-course-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeCourseId = button.dataset.courseId;
+      const next = COURSES.find((item) => item.id === activeCourseId);
+      activeLectureId = next?.lectures?.[0]?.id || "";
+      renderLectures();
+    });
+  });
+  $("lecture-list").querySelectorAll("[data-lecture-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeLectureId = button.dataset.lectureId;
+      renderLectures();
+    });
+  });
+}
+
+function renderLectureReader(course, lecture) {
+  const available = Array.isArray(lecture.theory);
+  $("lecture-reader").innerHTML = `
+    <div class="lecture-reader-head">
+      <div><span>${escapeHtml(lecture.level)}</span><h3>${escapeHtml(lecture.title)}</h3></div>
+      <span class="lecture-duration">${escapeHtml(lecture.duration)}</span>
+    </div>
+    <p class="lecture-lead">${escapeHtml(lecture.summary)}</p>
+    ${available ? `
+      <div class="theory-points">
+        ${lecture.theory.map((point, index) => `<section><span>${index + 1}</span><p>${escapeHtml(point)}</p></section>`).join("")}
+      </div>
+      <div class="lecture-practice"><small>Практическое продолжение</small><p>${escapeHtml(lecture.practice)}</p></div>
+      <div class="lecture-actions">
+        <button class="primary" id="lecture-open-sandbox">Открыть Sandbox</button>
+        <button id="lecture-open-tests">Перейти к Tests</button>
+      </div>
+    ` : `
+      <div class="lecture-placeholder">
+        <span>Содержание готовится</span>
+        <p>Структура курса создана. Сюда подключаются теория, примеры, лабораторная работа и runtime <strong>${escapeHtml(course.runtime)}</strong>.</p>
+      </div>
+    `}
+  `;
+  $("lecture-open-sandbox")?.addEventListener("click", () => setMode("sandbox"));
+  $("lecture-open-tests")?.addEventListener("click", () => setMode("tests"));
 }
 
 function renderEngineOptions() {
@@ -432,6 +519,7 @@ function openModal(html) {
 function wireEvents() {
   $("tab-sandbox").addEventListener("click", () => setMode("sandbox"));
   $("tab-tests").addEventListener("click", () => setMode("tests"));
+  $("tab-lectures").addEventListener("click", () => setMode("lectures"));
   $("engine-select").addEventListener("change", (event) => switchEngine(event.target.value));
 
   $("sandbox-run").addEventListener("click", runSandbox);
@@ -519,10 +607,11 @@ async function boot() {
   renderEngineOptions();
   updateProgress();
   renderSidebar();
+  renderLectures();
   wireEvents();
 
   const requestedMode = new URL(location.href).searchParams.get("mode");
-  setMode(requestedMode === "tests" ? "tests" : "sandbox");
+  setMode(["tests", "lectures"].includes(requestedMode) ? requestedMode : "sandbox");
   await switchEngine("sqlite");
 
   if (!currentTask && TASKS.length) selectTask(TASKS[0].id);
