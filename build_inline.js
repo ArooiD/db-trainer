@@ -20,6 +20,7 @@ const scripts = [
   "js/engines/sqlite-engine.js",
   "js/engines/pglite-engine.js",
   "js/db.js",
+  "js/workbench.js",
   "js/design.js",
   "js/app.js",
 ].map(read);
