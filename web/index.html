@@ -7,6 +7,7 @@
   <title>IT Study Lab — Interactive Sandbox</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/lab.css" />
+  <link rel="stylesheet" href="css/database-studio.css" />
 </head>
 <body>
   <header class="topbar app-topbar">
@@ -67,7 +68,7 @@
           <div>
             <div class="workspace-kicker">Sandbox / Databases</div>
             <h1>Database Sandbox</h1>
-            <p>Свободно экспериментируйте с SQL. Запросы выполняются прямо в браузере, а окружение можно в любой момент вернуть к исходному состоянию.</p>
+            <p>Создавайте собственные схемы, наполняйте их данными, исследуйте структуру и проверяйте запросы прямо в браузере.</p>
           </div>
           <div class="runtime-card">
             <span id="sandbox-runtime-name">SQLite</span>
@@ -78,7 +79,7 @@
         <div class="workspace-toolbar">
           <button id="sandbox-run" class="primary">▶ Run <kbd>Ctrl↵</kbd></button>
           <button id="sandbox-clear">Очистить</button>
-          <button id="sandbox-schema">Схема</button>
+          <button id="sandbox-schema">Schema SQL</button>
           <button id="sandbox-design">ER Designer</button>
           <button id="sandbox-reset" class="danger">Reset runtime</button>
           <span id="sandbox-feedback" class="inline-feedback"></span>
@@ -86,7 +87,7 @@
 
         <div class="workbench-grid">
           <section class="editor-card">
-            <div class="panel-head"><span>SQL Console</span><small>Многострочные запросы поддерживаются</small></div>
+            <div class="panel-head"><span>SQL Console</span><small>DDL, DML и многострочные запросы поддерживаются</small></div>
             <textarea id="sandbox-editor" class="workbench-editor" spellcheck="false" aria-label="SQL console"></textarea>
           </section>
 
@@ -99,6 +100,88 @@
         <section class="output-card">
           <div class="panel-head"><span>Output</span><small>Результат текущего runtime</small></div>
           <div id="sandbox-result" class="result-box workbench-output"><div class="empty">Среда запускается…</div></div>
+        </section>
+
+        <section id="database-studio" class="database-studio-card">
+          <div class="database-studio-head">
+            <div>
+              <span class="database-studio-title">Database Inspector</span>
+              <small id="db-inspector-status">чтение структуры…</small>
+            </div>
+            <div class="database-tool-tabs" role="tablist" aria-label="Инструменты базы данных">
+              <button class="database-tool-tab active" data-db-tool-tab="structure">Structure</button>
+              <button class="database-tool-tab" data-db-tool-tab="erd">Live ERD</button>
+              <button class="database-tool-tab" data-db-tool-tab="load">Load Lab</button>
+              <button id="db-inspector-refresh" class="database-refresh" title="Обновить структуру">↻</button>
+            </div>
+          </div>
+
+          <div id="db-tool-structure" class="database-tool-panel">
+            <div class="schema-browser">
+              <aside class="schema-table-list" id="schema-table-list">
+                <div class="schema-empty">Схема появится после запуска runtime.</div>
+              </aside>
+              <div class="schema-detail" id="schema-detail">
+                <div class="schema-empty">Выберите таблицу.</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="db-tool-erd" class="database-tool-panel hidden">
+            <div class="database-panel-note database-panel-note-action">
+              <span>Диаграмма строится из фактической схемы runtime. Создайте или измените таблицы через SQL Console и нажмите Refresh при необходимости. Двойной клик по таблице вставит SELECT в редактор.</span>
+              <button id="db-apply-designer" class="small-action">Применить ER Designer → runtime</button>
+            </div>
+            <div id="live-erd" class="live-erd">
+              <div class="schema-empty">ERD появится после чтения схемы.</div>
+            </div>
+          </div>
+
+          <div id="db-tool-load" class="database-tool-panel hidden">
+            <div class="load-layout">
+              <section class="load-config">
+                <div class="load-section-title">1. Данные для эксперимента</div>
+                <p class="load-copy">Создайте отдельную таблицу <code>lab_load_events</code>, чтобы безопасно сравнивать запросы и индексы, не затрагивая собственную схему.</p>
+                <label class="load-field">
+                  <span>Количество строк</span>
+                  <input id="load-row-count" type="number" min="100" max="250000" step="1000" value="10000" />
+                </label>
+                <div class="load-actions">
+                  <button id="load-generate" class="primary">Создать dataset</button>
+                  <button id="load-add-index">+ Индекс</button>
+                  <button id="load-drop-index">− Индекс</button>
+                </div>
+
+                <div class="load-section-title load-query-title">2. Запрос для benchmark</div>
+                <textarea id="load-query" class="load-query" spellcheck="false"></textarea>
+                <div class="load-benchmark-row">
+                  <label class="load-field compact-field">
+                    <span>Повторов</span>
+                    <input id="load-iterations" type="number" min="5" max="200" value="30" />
+                  </label>
+                  <button id="load-use-editor">Взять SQL из Console</button>
+                  <button id="load-benchmark" class="primary">Run benchmark</button>
+                </div>
+              </section>
+
+              <aside class="load-results">
+                <div class="load-section-title">Результаты</div>
+                <div id="load-runtime-hint" class="load-runtime-hint"></div>
+                <div id="load-metrics" class="load-metrics">
+                  <div class="load-metric"><small>avg</small><strong>—</strong></div>
+                  <div class="load-metric"><small>p50</small><strong>—</strong></div>
+                  <div class="load-metric"><small>p95</small><strong>—</strong></div>
+                  <div class="load-metric"><small>p99</small><strong>—</strong></div>
+                  <div class="load-metric"><small>ops/s</small><strong>—</strong></div>
+                  <div class="load-metric"><small>rows</small><strong>—</strong></div>
+                </div>
+                <div id="load-status" class="load-status">Сначала создайте dataset или используйте свой запрос.</div>
+                <div class="load-learning-note">
+                  Попробуйте benchmark без индекса, затем создайте индекс и повторите. Так видно, как структура БД влияет на latency.
+                </div>
+              </aside>
+            </div>
+          </div>
         </section>
       </main>
     </div>
@@ -171,5 +254,6 @@
   <script src="js/workbench.js"></script>
   <script src="js/design.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/database-studio.js"></script>
 </body>
 </html>

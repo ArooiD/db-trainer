@@ -9,6 +9,7 @@
       this.active = null;
       this.activeId = null;
       this.listeners = new Set();
+      this.eventListeners = new Set();
     }
 
     register(id, factory, meta = {}) {
@@ -31,11 +32,29 @@
       return () => this.listeners.delete(listener);
     }
 
+    onEvent(listener) {
+      this.eventListeners.add(listener);
+      return () => this.eventListeners.delete(listener);
+    }
+
     _emit() {
       const payload = { id: this.activeId, engine: this.active, meta: this.getMeta() };
       this.listeners.forEach((listener) => {
         try { listener(payload); }
         catch (err) { console.error("IT Study Lab runtime listener failed", err); }
+      });
+    }
+
+    _emitEvent(type, detail = {}) {
+      const payload = {
+        type,
+        engineId: this.activeId,
+        engine: this.active,
+        ...detail,
+      };
+      this.eventListeners.forEach((listener) => {
+        try { listener(payload); }
+        catch (err) { console.error("IT Study Lab runtime event listener failed", err); }
       });
     }
 
@@ -59,17 +78,30 @@
       this.active = engine;
       this.activeId = id;
       this._emit();
+      this._emitEvent("use", { options });
       return engine;
     }
 
     async execute(command, options = {}) {
       if (!this.active) throw new Error("No active lab engine");
-      return this.active.execute(command, options);
+      const result = await this.active.execute(command, options);
+      this._emitEvent("execute", { command, result, options });
+      return result;
     }
 
     async reset(options = {}) {
       if (!this.active) throw new Error("No active lab engine");
-      return this.active.reset(options);
+      const result = await this.active.reset(options);
+      this._emitEvent("reset", { options });
+      return result;
+    }
+
+    async inspectSchema() {
+      if (!this.active) return { engine: null, tables: [] };
+      if (typeof this.active.inspectSchema !== "function") {
+        return { engine: this.activeId, tables: [] };
+      }
+      return this.active.inspectSchema();
     }
 
     schemaDoc() { return this.active ? this.active.schemaDoc() : ""; }

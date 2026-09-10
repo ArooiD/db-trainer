@@ -20,10 +20,27 @@
     get ready() { return this._ready; }
 
     async init() { throw new Error(`${this.constructor.name}.init() is not implemented`); }
-    async execute(_command) { throw new Error(`${this.constructor.name}.execute() is not implemented`); }
-    async reset() { throw new Error(`${this.constructor.name}.reset() is not implemented`); }
+    async execute(_command, _options = {}) { throw new Error(`${this.constructor.name}.execute() is not implemented`); }
+    async reset(_options = {}) { throw new Error(`${this.constructor.name}.reset() is not implemented`); }
     schemaDoc() { return ""; }
+
+    // Structured introspection is used by the Database Inspector and live ERD.
+    // Engines that expose a database-like schema should return:
+    // { engine, tables: [{ name, columns, primaryKey, foreignKeys, indexes }] }
+    async inspectSchema() {
+      return { engine: this.id, tables: [] };
+    }
+
     async snapshot() { return null; }
+
+    async metrics() {
+      return {
+        engine: this.id,
+        ready: this.ready,
+        technology: this.meta.technology,
+      };
+    }
+
     async destroy() { this._ready = false; }
   }
 

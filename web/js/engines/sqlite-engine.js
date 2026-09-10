@@ -11,6 +11,10 @@
     return bytes;
   }
 
+  function quoteIdent(value) {
+    return '"' + String(value).replace(/"/g, '""') + '"';
+  }
+
   function commonSchemaDoc() {
     return [
       "Таблица `departments` — отделы компании.",
@@ -40,7 +44,7 @@
         dialect: "sqlite",
         description: "Лёгкая полностью локальная SQL-среда, работающая офлайн.",
         networkRequired: false,
-        capabilities: ["sql", "ddl", "dml", "schema", "snapshot"],
+        capabilities: ["sql", "ddl", "dml", "schema", "schema-introspection", "snapshot", "benchmark"],
       });
       this.db = null;
       this.SQL = null;
@@ -60,10 +64,17 @@
       this.db.run(window.DB_DATA.schema);
       for (const [table, def] of Object.entries(window.DB_DATA.tables)) {
         const ph = def.columns.map(() => "?").join(",");
-        const stmt = this.db.prepare(`INSERT INTO ${table} VALUES (${ph})`);
+        const stmt = this.db.prepare(`INSERT INTO ${quoteIdent(table)} VALUES (${ph})`);
         for (const row of def.rows) stmt.run(row);
         stmt.free();
       }
+    }
+
+    _rows(sql) {
+      const res = this.db.exec(sql);
+      if (!res.length) return [];
+      const { columns, values } = res[0];
+      return values.map((row) => Object.fromEntries(columns.map((name, index) => [name, row[index]])));
     }
 
     async execute(sql) {
@@ -83,6 +94,64 @@
     async reset() {
       await this._seed();
       return this;
+    }
+
+    async inspectSchema() {
+      if (!this.ready || !this.db) return { engine: "sqlite", tables: [] };
+
+      const tableRows = this._rows(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+      );
+      const tables = [];
+
+      for (const tableRow of tableRows) {
+        const tableName = String(tableRow.name);
+        const q = quoteIdent(tableName);
+        const columnRows = this._rows(`PRAGMA table_info(${q})`);
+        const fkRows = this._rows(`PRAGMA foreign_key_list(${q})`);
+        const indexRows = this._rows(`PRAGMA index_list(${q})`);
+
+        const columns = columnRows.map((row) => ({
+          name: String(row.name),
+          type: String(row.type || ""),
+          nullable: !(Number(row.notnull) || Number(row.pk)),
+          primaryKey: !!Number(row.pk),
+          default: row.dflt_value == null ? null : String(row.dflt_value),
+          position: Number(row.cid || 0) + 1,
+        }));
+
+        const indexes = [];
+        for (const row of indexRows) {
+          const indexName = String(row.name);
+          const indexColumns = this._rows(`PRAGMA index_info(${quoteIdent(indexName)})`)
+            .sort((a, b) => Number(a.seqno) - Number(b.seqno))
+            .map((item) => String(item.name));
+          indexes.push({
+            name: indexName,
+            unique: !!Number(row.unique),
+            columns: indexColumns,
+            definition: "",
+          });
+        }
+
+        const foreignKeys = fkRows.map((row) => ({
+          column: String(row.from),
+          refTable: String(row.table),
+          refColumn: String(row.to || "id"),
+          onUpdate: String(row.on_update || ""),
+          onDelete: String(row.on_delete || ""),
+        }));
+
+        tables.push({
+          name: tableName,
+          columns,
+          primaryKey: columns.filter((column) => column.primaryKey).map((column) => column.name),
+          foreignKeys,
+          indexes,
+        });
+      }
+
+      return { engine: "sqlite", dialect: "sqlite", tables };
     }
 
     schemaDoc() {
@@ -105,6 +174,6 @@
     dialect: "sqlite",
     description: "Полностью локально и офлайн",
     networkRequired: false,
-    capabilities: ["sql", "ddl", "dml", "schema", "snapshot"],
+    capabilities: ["sql", "ddl", "dml", "schema", "schema-introspection", "snapshot", "benchmark"],
   });
 })();

@@ -9,7 +9,7 @@ const OUTDIR = path.join(__dirname, "dist-standalone");
 const OUT = path.join(OUTDIR, "index.html");
 const read = (rel) => fs.readFileSync(path.join(SRC, rel), "utf8");
 
-const css = ["css/style.css", "css/lab.css"].map(read).join("\n");
+const css = ["css/style.css", "css/lab.css", "css/database-studio.css"].map(read).join("\n");
 const scripts = [
   "vendor/sql-wasm.js",
   "vendor/sql-binary.js",
@@ -23,6 +23,7 @@ const scripts = [
   "js/workbench.js",
   "js/design.js",
   "js/app.js",
+  "js/database-studio.js",
 ].map(read);
 
 for (const s of scripts) {
