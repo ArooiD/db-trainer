@@ -123,6 +123,7 @@ tr:last-child td { border-bottom: 0; }
 .hidden { display: none !important; }
 
 .pwa-controls { display: flex; align-items: center; gap: 8px; }
+.install-app { display: none !important; }
 .connection-status.offline {
   display: inline-flex;
   align-items: center;
