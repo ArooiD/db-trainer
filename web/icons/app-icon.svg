@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="IT Study Lab">
+  <rect width="512" height="512" rx="112" fill="#0b1120"/>
+  <path d="M96 146c0-28 72-50 160-50s160 22 160 50v220c0 28-72 50-160 50S96 394 96 366V146Z" fill="#17233d" stroke="#4f8cff" stroke-width="22"/>
+  <path d="M96 146c0 28 72 50 160 50s160-22 160-50M96 256c0 28 72 50 160 50s160-22 160-50" fill="none" stroke="#4f8cff" stroke-width="22"/>
+  <path d="m214 341 35 35 67-77" fill="none" stroke="#38d39f" stroke-linecap="round" stroke-linejoin="round" stroke-width="26"/>
+</svg>

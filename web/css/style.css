@@ -122,6 +122,29 @@ tr:last-child td { border-bottom: 0; }
    (например .modal { display: flex }), независимо от порядка объявления. */
 .hidden { display: none !important; }
 
+.pwa-controls { display: flex; align-items: center; gap: 8px; }
+.install-app {
+  border-color: #4f8cff;
+  color: #dce8ff;
+  background: rgba(79, 140, 255, .14);
+  white-space: nowrap;
+}
+.connection-status.offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffcc66;
+  font-size: 12px;
+  font-weight: 700;
+}
+.connection-status.offline::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .modal {
   position: fixed; inset: 0; background: rgba(4,8,18,.7);
   display: flex; align-items: center; justify-content: center;
@@ -200,4 +223,3 @@ tr:last-child td { border-bottom: 0; }
   .designer-inner { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
   .designer-side { border-left: none; border-top: 1px solid #2b3450; max-height: 45vh; }
 }
-

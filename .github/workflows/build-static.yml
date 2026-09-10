@@ -37,6 +37,10 @@ jobs:
         shell: bash
         run: |
           test -f dist/index.html
+          test -f dist/manifest.webmanifest
+          test -f dist/service-worker.js
+          test -f dist/icons/icon-192.png
+          test -f dist/icons/icon-512.png
           test -f dist/vendor/pglite/index.js
           test -f dist-standalone/index.html
           echo "IT Study Lab static build is ready"

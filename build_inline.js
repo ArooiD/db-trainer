@@ -35,6 +35,7 @@ for (const s of scripts) {
 
 let html = read("index.html");
 html = html.replace(/\s*<link rel="stylesheet"[^>]*>/g, "");
+html = html.replace(/\s*<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>/g, "");
 html = html.replace(/\s*<script src=[^>]*><\/script>/g, "");
 
 const inlined =
