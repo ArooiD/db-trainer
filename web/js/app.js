@@ -1,7 +1,9 @@
-// Фронтенд SQL-тренажёра (браузерная версия). Задачи берутся из window.DB_TASKS,
-// выполнение SQL идёт через sql.js (window.DB), без сервера.
+// IT Study Lab — модуль «Базы данных».
+// Учебный UI работает через общий LabRuntime, поэтому SQL-движок можно менять
+// без изменения логики заданий и проверки.
 
 const TASKS = window.DB_TASKS;
+const runtime = window.ITStudyLab.runtime;
 const LEVEL_NAMES = {
   1: "1. Основы SELECT",
   2: "2. Фильтрация WHERE",
@@ -12,9 +14,8 @@ const LEVEL_NAMES = {
   7: "7. CASE и условия",
 };
 
-const STORE_DONE = "sqltr.done";
-const STORE_DRAFTS = "sqltr.drafts";
-
+const STORE_DONE = "it-study-lab.databases.done";
+const STORE_DRAFTS = "it-study-lab.databases.drafts";
 const $ = (id) => document.getElementById(id);
 
 let currentTask = null;
@@ -23,16 +24,19 @@ let sandboxMode = false;
 // ---------- storage ----------
 const loadSet = (key) => {
   try {
-    return new Set(JSON.parse(localStorage.getItem(key) || "[]"));
+    const current = localStorage.getItem(key);
+    const legacy = key === STORE_DONE ? localStorage.getItem("sqltr.done") : null;
+    return new Set(JSON.parse(current || legacy || "[]"));
   } catch {
     return new Set();
   }
 };
-const saveSet = (key, set) =>
-  localStorage.setItem(key, JSON.stringify([...set]));
+const saveSet = (key, set) => localStorage.setItem(key, JSON.stringify([...set]));
 const loadDrafts = () => {
   try {
-    return JSON.parse(localStorage.getItem(STORE_DRAFTS) || "{}");
+    return JSON.parse(
+      localStorage.getItem(STORE_DRAFTS) || localStorage.getItem("sqltr.drafts") || "{}"
+    );
   } catch {
     return {};
   }
@@ -40,8 +44,59 @@ const loadDrafts = () => {
 
 let solved = loadSet(STORE_DONE);
 
-// ---------- sql execution ----------
+// ---------- runtime ----------
 const executeSQL = (sql) => Promise.resolve(window.DB.executeSQL(sql));
+
+function renderEngineOptions() {
+  $("engine-select").innerHTML = runtime
+    .list()
+    .map(
+      (engine) =>
+        `<option value="${engine.id}">${escapeHtml(engine.label)} · ${escapeHtml(
+          engine.technology || engine.dialect || "runtime"
+        )}</option>`
+    )
+    .join("");
+}
+
+function updateEngineStatus(text, state = "") {
+  const el = $("engine-status");
+  el.textContent = text;
+  el.className = `runtime-status ${state}`.trim();
+}
+
+async function switchEngine(id) {
+  const select = $("engine-select");
+  const previous = runtime.activeId;
+  select.disabled = true;
+  $("btn-run").disabled = true;
+  updateEngineStatus("загрузка…", "loading");
+
+  try {
+    await window.DB.use(id);
+    select.value = id;
+    const meta = runtime.getMeta(id);
+    updateEngineStatus(`${meta.label} готов`, "ready");
+    $("user-result").innerHTML = "";
+    $("expected-result").innerHTML = "";
+    $("feedback").classList.add("hidden");
+
+    if (sandboxMode) enableSandbox();
+    else selectTask((currentTask && currentTask.id) || TASKS[0].id);
+  } catch (err) {
+    select.value = previous || "sqlite";
+    updateEngineStatus("ошибка запуска", "error");
+    const fb = $("feedback");
+    fb.className = "feedback no";
+    fb.innerHTML =
+      "Не удалось запустить выбранный runtime:<br><span class='err'>" +
+      escapeHtml(String((err && err.message) || err)) +
+      "</span>";
+  } finally {
+    select.disabled = false;
+    $("btn-run").disabled = false;
+  }
+}
 
 // ---------- comparison ----------
 function normalizeCell(v) {
@@ -63,9 +118,8 @@ function resultsMatch(a, b, ordered) {
   const ra = a.rows || [];
   const rb = b.rows || [];
   if (ra.length !== rb.length) return false;
-  if (ordered) {
-    return ra.every((row, i) => rowKey(row) === rowKey(rb[i]));
-  }
+  if (ordered) return ra.every((row, i) => rowKey(row) === rowKey(rb[i]));
+
   const mb = {};
   rb.forEach((r) => (mb[rowKey(r)] = (mb[rowKey(r)] || 0) + 1));
   for (const row of ra) {
@@ -78,7 +132,7 @@ function resultsMatch(a, b, ordered) {
 
 // ---------- rendering ----------
 function escapeHtml(s) {
-  return s
+  return String(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -88,15 +142,12 @@ function escapeHtml(s) {
 function renderTable(result) {
   if (!result) return '<div class="empty">—</div>';
   if (result.error)
-    return `<div class="empty" style="color:#ff6b6b">${escapeHtml(
-      result.error
-    )}</div>`;
+    return `<div class="empty" style="color:#ff6b6b">${escapeHtml(result.error)}</div>`;
   if (!result.columns || result.columns.length === 0)
-    return '<div class="empty">Запрос выполнен (строк нет, например DDL/DML).</div>';
-  if (result.rows.length === 0) return '<div class="empty">0 строк</div>';
-  const head = result.columns
-    .map((c) => `<th>${escapeHtml(String(c))}</th>`)
-    .join("");
+    return '<div class="empty">Команда выполнена. Табличного результата нет.</div>';
+  if (!result.rows || result.rows.length === 0) return '<div class="empty">0 строк</div>';
+
+  const head = result.columns.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
   const body = result.rows
     .map(
       (r) =>
@@ -106,7 +157,7 @@ function renderTable(result) {
               `<td>${
                 v === null
                   ? '<span style="color:#8a97b3">NULL</span>'
-                  : escapeHtml(String(v))
+                  : escapeHtml(v)
               }</td>`
           )
           .join("")}</tr>`
@@ -120,9 +171,7 @@ function renderTable(result) {
 
 function renderSidebar() {
   const byLevel = {};
-  TASKS.forEach((t) => {
-    (byLevel[t.level] = byLevel[t.level] || []).push(t);
-  });
+  TASKS.forEach((t) => (byLevel[t.level] = byLevel[t.level] || []).push(t));
   $("task-list").innerHTML = Object.keys(byLevel)
     .sort((a, b) => a - b)
     .map((lvl) => {
@@ -144,6 +193,7 @@ function renderSidebar() {
         </div>`;
     })
     .join("");
+
   $("task-list")
     .querySelectorAll(".task-item")
     .forEach((el) => el.addEventListener("click", () => selectTask(el.dataset.id)));
@@ -173,6 +223,7 @@ function selectTask(id) {
   $("editor").value = loadDrafts()[id] || "";
   $("btn-hint").classList.remove("hidden");
   $("btn-solution").classList.remove("hidden");
+
   const st = $("task-status");
   if (solved.has(id)) {
     st.textContent = "Решено ✓";
@@ -187,10 +238,13 @@ function selectTask(id) {
 function enableSandbox() {
   sandboxMode = true;
   currentTask = null;
-  $("task-level").textContent = "Свободный режим";
-  $("task-title").textContent = "Песочница";
+  const meta = runtime.getMeta() || { label: "SQL" };
+  $("task-level").textContent = `${meta.label} · свободный режим`;
+  $("task-title").textContent = "SQL-песочница";
   $("task-desc").innerHTML =
-    "Выполните любой SQL-запрос к учебной базе — результат появится справа. Здесь нет проверки и подсказки.";
+    `Выполните любой SQL-запрос в runtime <code>${escapeHtml(
+      meta.label
+    )}</code>. Здесь нет проверки и подсказок; состояние сохраняется до перезагрузки runtime.`;
   $("editor").value = "SELECT * FROM departments;";
   $("task-status").textContent = "Песочница";
   $("task-status").className = "badge";
@@ -213,7 +267,8 @@ async function run() {
     fb.innerHTML = "Введите SQL-запрос.";
     return;
   }
-  if (!sandboxMode) {
+
+  if (!sandboxMode && currentTask) {
     const drafts = loadDrafts();
     drafts[currentTask.id] = $("editor").value;
     localStorage.setItem(STORE_DRAFTS, JSON.stringify(drafts));
@@ -232,7 +287,6 @@ async function run() {
 
     const expected = await executeSQL(currentTask.solution);
     $("expected-result").innerHTML = renderTable(expected);
-
     const ok =
       !userResult.error &&
       !expected.error &&
@@ -249,17 +303,17 @@ async function run() {
         st.className = "badge ok";
       }
       fb.className = "feedback ok";
-      fb.innerHTML = "✅ Верно! Результат совпадает с ожидаемым.";
+      fb.innerHTML = "Верно. Результат совпадает с ожидаемым.";
     } else if (userResult.error) {
       fb.className = "feedback no";
       fb.innerHTML =
-        "❌ Запрос завершился с ошибкой:<br><span class='err'>" +
+        "Запрос завершился с ошибкой:<br><span class='err'>" +
         escapeHtml(userResult.error) +
         "</span>";
     } else {
       fb.className = "feedback no";
       fb.innerHTML =
-        "❌ Результат не совпадает с ожидаемым. Сравните таблицы ниже и подумайте, что изменить.";
+        "Результат не совпадает с ожидаемым. Сравните таблицы и попробуйте изменить запрос.";
     }
   } finally {
     $("btn-run").disabled = false;
@@ -273,8 +327,9 @@ function openModal(html) {
 }
 
 function showSchema() {
+  const meta = runtime.getMeta() || { label: "SQL" };
   openModal(
-    `<h3>Схема учебной базы данных</h3><pre>${escapeHtml(
+    `<h3>Схема учебной базы · ${escapeHtml(meta.label)}</h3><pre>${escapeHtml(
       window.DB.schemaDoc()
     )}</pre><p style="color:#8a97b3">Пример: <code>SELECT * FROM employees LIMIT 5;</code></p>`
   );
@@ -290,25 +345,26 @@ $("editor").addEventListener("keydown", (e) => {
 });
 $("btn-hint").addEventListener("click", () => {
   if (!currentTask) return;
-  $("hint-box").textContent = "💡 " + currentTask.hint;
+  $("hint-box").textContent = currentTask.hint;
   $("hint-box").classList.remove("hidden");
 });
 $("btn-solution").addEventListener("click", () => {
   if (!currentTask) return;
   $("solution-box").innerHTML =
-    "👁 Пример решения (сравните со своим):<pre>" +
-    escapeHtml(currentTask.solution) +
-    "</pre>";
+    "Пример решения:<pre>" + escapeHtml(currentTask.solution) + "</pre>";
   $("solution-box").classList.remove("hidden");
 });
 $("btn-clear").addEventListener("click", () => ($("editor").value = ""));
 $("btn-schema").addEventListener("click", showSchema);
 $("btn-design").addEventListener("click", () => window.Designer.open(sandboxMode ? null : currentTask));
 $("btn-sandbox").addEventListener("click", enableSandbox);
+$("engine-select").addEventListener("change", (e) => switchEngine(e.target.value));
 $("btn-reset").addEventListener("click", () => {
-  if (!confirm("Сбросить прогресс и все черновики?")) return;
+  if (!confirm("Сбросить прогресс и все черновики по базам данных?")) return;
   localStorage.removeItem(STORE_DONE);
   localStorage.removeItem(STORE_DRAFTS);
+  localStorage.removeItem("sqltr.done");
+  localStorage.removeItem("sqltr.drafts");
   solved = new Set();
   updateProgress();
   renderSidebar();
@@ -321,9 +377,10 @@ $("modal").addEventListener("click", (e) => {
 
 // ---------- init ----------
 async function boot() {
-  await window.DB.init();
+  renderEngineOptions();
   updateProgress();
   renderSidebar();
-  selectTask(TASKS[0].id);
+  await switchEngine("sqlite");
 }
+
 boot();
