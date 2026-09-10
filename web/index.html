@@ -3,73 +3,154 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="IT Study Lab — интерактивная лабораторная среда для подготовки студентов по IT-дисциплинам." />
-  <title>IT Study Lab — Базы данных</title>
+  <meta name="description" content="IT Study Lab — интерактивная песочница для будущих программистов." />
+  <title>IT Study Lab — Interactive Sandbox</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/lab.css" />
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar app-topbar">
     <div class="brand-block">
       <div class="brand">IT Study Lab</div>
-      <div class="brand-subtitle">Базы данных · SQL Lab</div>
+      <div class="brand-subtitle">Interactive sandbox for future programmers</div>
     </div>
+
+    <nav class="mode-tabs" aria-label="Режим работы">
+      <button id="tab-sandbox" class="mode-tab active">Sandbox</button>
+      <button id="tab-tests" class="mode-tab">Tests</button>
+    </nav>
+
     <div class="runtime-switch">
-      <label for="engine-select">Движок</label>
-      <select id="engine-select" aria-label="Выбор SQL-движка"></select>
+      <label for="engine-select">Runtime</label>
+      <select id="engine-select" aria-label="Выбор runtime"></select>
       <span class="runtime-status" id="engine-status">инициализация…</span>
     </div>
-    <div class="progress" id="progress">Прогресс: …</div>
-    <div class="topbar-actions">
-      <button id="btn-schema" class="ghost">Схема БД</button>
-      <button id="btn-design" class="ghost">Спроектировать</button>
-      <button id="btn-sandbox" class="ghost">Свободный режим</button>
-      <button id="btn-reset" class="ghost danger">Сбросить прогресс</button>
-    </div>
+
+    <div class="progress hidden" id="progress">Tests: …</div>
   </header>
 
-  <main class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-title">Базы данных · задания</div>
-      <nav id="task-list" class="task-list"></nav>
-    </aside>
+  <section id="sandbox-view" class="product-view">
+    <div class="studio-layout">
+      <aside class="module-rail">
+        <div class="rail-title">Лаборатории</div>
 
-    <section class="content">
-      <div class="task-head">
-        <div>
-          <div class="task-level" id="task-level"></div>
-          <h2 id="task-title"></h2>
+        <button class="module-card active">
+          <span class="module-icon">DB</span>
+          <span>
+            <strong>Базы данных</strong>
+            <small>SQLite · PostgreSQL</small>
+          </span>
+          <span class="module-state ready">ready</span>
+        </button>
+
+        <button class="module-card" data-future-module data-title="Программирование" data-description="Редактор программ, stdout/stderr, файлы и запуск Python/JavaScript через браузерные runtimes.">
+          <span class="module-icon">⌘</span>
+          <span><strong>Программирование</strong><small>Python · JavaScript</small></span>
+          <span class="module-state">next</span>
+        </button>
+
+        <button class="module-card" data-future-module data-title="Операционные системы" data-description="Интерактивный Linux terminal, файловая система, процессы, сигналы и визуализаторы.">
+          <span class="module-icon">OS</span>
+          <span><strong>Операционные системы</strong><small>Linux · processes · FS</small></span>
+          <span class="module-state">planned</span>
+        </button>
+
+        <button class="module-card" data-future-module data-title="Специальные программные продукты" data-description="Dockerfile, Compose, контейнеры, сети, volumes и визуальная модель слоёв.">
+          <span class="module-icon">◫</span>
+          <span><strong>Docker / Software</strong><small>Docker · Compose · CI/CD</small></span>
+          <span class="module-state">planned</span>
+        </button>
+      </aside>
+
+      <main class="workspace">
+        <div class="workspace-head">
+          <div>
+            <div class="workspace-kicker">Sandbox / Databases</div>
+            <h1>Database Sandbox</h1>
+            <p>Свободно экспериментируйте с SQL. Запросы выполняются прямо в браузере, а окружение можно в любой момент вернуть к исходному состоянию.</p>
+          </div>
+          <div class="runtime-card">
+            <span id="sandbox-runtime-name">SQLite</span>
+            <small id="sandbox-runtime-tech">sql.js / WASM</small>
+          </div>
         </div>
-        <span id="task-status" class="badge"></span>
-      </div>
-      <p class="task-desc" id="task-desc"></p>
 
-      <div class="controls">
-        <button id="btn-run" class="primary">▶ Проверить</button>
-        <button id="btn-hint" class="ghost">Подсказка</button>
-        <button id="btn-solution" class="ghost">Показать решение</button>
-        <button id="btn-clear" class="ghost">Очистить</button>
-      </div>
-
-      <textarea id="editor" spellcheck="false" placeholder="Введите SQL-запрос..."></textarea>
-
-      <div id="feedback" class="feedback hidden"></div>
-
-      <div class="results">
-        <div class="results-col">
-          <div class="results-caption">Результат вашего запроса</div>
-          <div id="user-result" class="result-box"></div>
+        <div class="workspace-toolbar">
+          <button id="sandbox-run" class="primary">▶ Run <kbd>Ctrl↵</kbd></button>
+          <button id="sandbox-clear">Очистить</button>
+          <button id="sandbox-schema">Схема</button>
+          <button id="sandbox-design">ER Designer</button>
+          <button id="sandbox-reset" class="danger">Reset runtime</button>
+          <span id="sandbox-feedback" class="inline-feedback"></span>
         </div>
-        <div class="results-col">
-          <div class="results-caption">Ожидаемый результат</div>
-          <div id="expected-result" class="result-box"></div>
-        </div>
-      </div>
 
-      <div class="hint-box hidden" id="hint-box"></div>
-      <div class="solution-box hidden" id="solution-box"></div>
-    </section>
-  </main>
+        <div class="workbench-grid">
+          <section class="editor-card">
+            <div class="panel-head"><span>SQL Console</span><small>Многострочные запросы поддерживаются</small></div>
+            <textarea id="sandbox-editor" class="workbench-editor" spellcheck="false" aria-label="SQL console"></textarea>
+          </section>
+
+          <aside class="history-card">
+            <div class="panel-head"><span>История</span><button id="sandbox-clear-history" class="link-button">очистить</button></div>
+            <div id="sandbox-history" class="history-list"></div>
+          </aside>
+        </div>
+
+        <section class="output-card">
+          <div class="panel-head"><span>Output</span><small>Результат текущего runtime</small></div>
+          <div id="sandbox-result" class="result-box workbench-output"><div class="empty">Среда запускается…</div></div>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <section id="tests-view" class="product-view hidden">
+    <div class="tests-intro">
+      <div>
+        <div class="workspace-kicker">Knowledge check</div>
+        <h1>Tests / Practice</h1>
+        <p>Отдельный блок для проверки знаний. Он не ограничивает свободную песочницу.</p>
+      </div>
+      <div class="tests-actions">
+        <button id="test-schema">Схема БД</button>
+        <button id="test-design">Спроектировать</button>
+        <button id="test-reset-progress" class="danger">Сбросить прогресс</button>
+      </div>
+    </div>
+
+    <div class="layout tests-layout">
+      <aside class="sidebar">
+        <div class="sidebar-title">Базы данных · задания</div>
+        <nav id="test-task-list" class="task-list"></nav>
+      </aside>
+
+      <section class="content">
+        <div class="task-head">
+          <div><div class="task-level" id="test-level"></div><h2 id="test-title"></h2></div>
+          <span id="test-status" class="badge"></span>
+        </div>
+        <p class="task-desc" id="test-desc"></p>
+
+        <div class="controls">
+          <button id="test-run" class="primary">▶ Проверить</button>
+          <button id="test-hint">Подсказка</button>
+          <button id="test-solution">Показать решение</button>
+          <button id="test-clear">Очистить</button>
+        </div>
+
+        <textarea id="test-editor" class="test-editor" spellcheck="false" placeholder="Введите SQL-запрос..."></textarea>
+        <div id="test-feedback" class="feedback hidden"></div>
+
+        <div class="results">
+          <div class="results-col"><div class="results-caption">Результат вашего запроса</div><div id="test-user-result" class="result-box"></div></div>
+          <div class="results-col"><div class="results-caption">Ожидаемый результат</div><div id="test-expected-result" class="result-box"></div></div>
+        </div>
+
+        <div class="hint-box hidden" id="test-hint-box"></div>
+        <div class="solution-box hidden" id="test-solution-box"></div>
+      </section>
+    </div>
+  </section>
 
   <div id="modal" class="modal hidden">
     <div class="modal-body">
@@ -87,6 +168,7 @@
   <script src="js/engines/sqlite-engine.js"></script>
   <script src="js/engines/pglite-engine.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/workbench.js"></script>
   <script src="js/design.js"></script>
   <script src="js/app.js"></script>
 </body>
