@@ -546,7 +546,7 @@ function wireEvents() {
   $("tab-sandbox").addEventListener("click", () => setMode("sandbox"));
   $("tab-tests").addEventListener("click", () => setMode("tests"));
  $("tab-lectures").addEventListener("click", () => setMode("lectures"));
-  document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => setLab(button.dataset.openLab)));
+  document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => { setMode("sandbox"); setLab(button.dataset.openLab); }));
   $("program-open-lectures").addEventListener("click", () => {
     activeCourseId = "programming";
     activeLectureId = COURSES.find((item) => item.id === "programming")?.lectures?.[0]?.id || "";

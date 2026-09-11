@@ -56,6 +56,18 @@
 .runtime-status.error { color: #ff6b6b; }
 
 .product-view { min-height: calc(100vh - 64px); }
+
+/* Global application shell: shared left rail + scrollable content */
+.app-shell { display: flex; align-items: flex-start; }
+.app-content { flex: 1; min-width: 0; }
+.app-shell > .ide-activity-bar {
+  position: sticky;
+  top: 64px;
+  flex: 0 0 58px;
+  width: 58px;
+  height: calc(100vh - 64px);
+  z-index: 5;
+}
 .studio-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: calc(100vh - 64px); }
 .module-rail { padding: 18px 12px; border-right: 1px solid #2b3450; background: #111827; }
 .rail-title { padding: 0 10px 10px; color: #8a97b3; font-size: 11px; text-transform: uppercase; letter-spacing: .9px; }
@@ -179,13 +191,13 @@
 /* Database IDE workspace */
 .database-ide {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   height: calc(100vh - 64px);
   min-height: 650px;
   overflow: hidden;
   background: #101318;
 }
-.programming-ide { display: grid; grid-template-columns: 58px minmax(0, 1fr); height: calc(100vh - 64px); min-height: 650px; overflow: hidden; background: #101318; }
+.programming-ide { display: grid; grid-template-columns: minmax(0, 1fr); height: calc(100vh - 64px); min-height: 650px; overflow: hidden; background: #101318; }
 .program-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 285px; min-height: 0; flex: 1; }
 .program-center { display: grid; grid-template-rows: 38px minmax(260px, 1fr) minmax(190px, 33%); min-height: 0; border-right: 1px solid #30343a; }
 .program-runtime { min-height: 26px; border: 1px solid #454b54; border-radius: 4px; background: #242a31; color: #dfe4eb; font-size: 11px; }
@@ -427,8 +439,9 @@
 }
 
 @media (max-width: 780px) {
-  .database-ide { grid-template-columns: 44px minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
-  .programming-ide { grid-template-columns: 44px minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
+  .database-ide { grid-template-columns: minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
+  .programming-ide { grid-template-columns: minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
+  .app-shell > .ide-activity-bar { flex-basis: 44px; width: 44px; height: auto; min-height: calc(100vh - 110px); }
   .program-workspace { display: block; }.program-center { min-height: 720px; grid-template-rows: 38px 390px 292px; }.program-sidebar { min-height: 290px; }
   .activity-button small { display: none; }
   .ide-workspace { display: flex; flex-direction: column; }

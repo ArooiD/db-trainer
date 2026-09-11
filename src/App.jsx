@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AppHeader from "./components/AppHeader.jsx";
+import LabRail from "./components/shared/LabRail.jsx";
 import DatabaseSandbox from "./components/DatabaseSandbox.jsx";
 import ProgrammingSandbox from "./components/ProgrammingSandbox.jsx";
 import LecturesView from "./components/LecturesView.jsx";
@@ -57,12 +58,17 @@ export default function App() {
   return (
     <>
       <AppHeader />
-      <section id="sandbox-view" className="product-view">
-        <DatabaseSandbox />
-        <ProgrammingSandbox />
-      </section>
-      <LecturesView />
-      <TestsView />
+      <div className="app-shell">
+        <LabRail active="database" />
+        <div className="app-content">
+          <section id="sandbox-view" className="product-view">
+            <DatabaseSandbox />
+            <ProgrammingSandbox />
+          </section>
+          <LecturesView />
+          <TestsView />
+        </div>
+      </div>
       <AppModal />
     </>
   );
