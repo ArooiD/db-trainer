@@ -4,6 +4,8 @@
 
 import { DB_LECTURES } from "./lectures/databases.js";
 import { DEV_LECTURES } from "./lectures/programming.js";
+import { AI_LECTURES } from "./lectures/ai.js";
+import { ARCH_LECTURES } from "./lectures/architecture.js";
 import { OS_LECTURES } from "./lectures/operating-systems.js";
 import { OPS_LECTURES } from "./lectures/software-products.js";
 
@@ -48,5 +50,25 @@ export const COURSES = [
     runtime: "Container Lab Engine",
     accent: "#ffb454",
     lectures: OPS_LECTURES
+  },
+  {
+    id: "ai",
+    code: "AI",
+    title: "Искусственный интеллект",
+    description: "ML-пайплайн, нейросети, трансформеры и практические ограничения моделей.",
+    status: "planned",
+    runtime: "TensorFlow.js / ONNX Runtime Web",
+    accent: "#ff6ba6",
+    lectures: AI_LECTURES
+  },
+  {
+    id: "architecture",
+    code: "ARCH",
+    title: "Архитектура ПО",
+    description: "Границы модулей, архитектурные стили, надёжность и принятие решений.",
+    status: "planned",
+    runtime: "C4-lab / ADR editor",
+    accent: "#63e2d1",
+    lectures: ARCH_LECTURES
   }
 ];
