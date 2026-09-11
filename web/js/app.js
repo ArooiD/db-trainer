@@ -199,10 +199,14 @@ function setMode(mode) {
   }
 }
 
-function setLab(lab) {
-  activeLab = lab === "programming" ? "programming" : "database";
+function applyLabViews() {
   $("database-sandbox").classList.toggle("hidden", activeLab !== "database");
   $("programming-sandbox").classList.toggle("hidden", activeLab !== "programming");
+}
+
+function setLab(lab) {
+  activeLab = lab === "programming" ? "programming" : "database";
+  applyLabViews();
   if (LAB_COURSE[activeLab] && LAB_COURSE[activeLab] !== activeCourseId) {
     activeCourseId = LAB_COURSE[activeLab];
     activeLectureId = COURSES.find((item) => item.id === activeCourseId)?.lectures?.[0]?.id || "";
@@ -215,11 +219,11 @@ function setLab(lab) {
 }
 
 function updateRail() {
-  document.querySelectorAll("[data-open-lab]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.openLab === activeLab && activeMode === "sandbox");
-  });
-  document.querySelectorAll("[data-open-course]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.openCourse === activeCourseId && activeMode === "lectures");
+  document.querySelectorAll(".activity-button").forEach((button) => {
+    const active = activeMode === "lectures"
+      ? button.dataset.course === activeCourseId
+      : Boolean(button.dataset.openLab) && button.dataset.openLab === activeLab;
+    button.classList.toggle("active", active);
   });
 }
 
@@ -229,6 +233,11 @@ function selectCourse(courseId) {
   if (activeCourseId !== course.id) {
     activeCourseId = course.id;
     activeLectureId = course.lectures[0]?.id || "";
+  }
+  const lab = COURSE_LAB[course.id];
+  if (lab && lab !== activeLab) {
+    activeLab = lab;
+    applyLabViews();
   }
   renderLectures();
   updateRail();
@@ -594,7 +603,11 @@ function wireEvents() {
   $("tab-sandbox").addEventListener("click", () => setMode("sandbox"));
   $("tab-tests").addEventListener("click", () => setMode("tests"));
  $("tab-lectures").addEventListener("click", () => setMode("lectures"));
-  document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => { setMode("sandbox"); setLab(button.dataset.openLab); }));
+  document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => {
+    if (activeMode === "lectures") { selectCourse(LAB_COURSE[button.dataset.openLab] || button.dataset.openLab); return; }
+    setMode("sandbox");
+    setLab(button.dataset.openLab);
+  }));
   document.querySelectorAll("[data-open-course]").forEach((button) => button.addEventListener("click", () => { setMode("lectures"); selectCourse(button.dataset.openCourse); }));
   $("program-open-lectures").addEventListener("click", () => {
     setMode("lectures");
