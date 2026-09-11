@@ -17,7 +17,7 @@ IT Study Lab — browser-first интерактивная песочница д�
 - `src/App.jsx` — layout (header + rail + режимы), регистрация Service Worker.
 - `src/state/app-store.jsx` — React Context: весь стор приложения (навигация, режимы, sandbox, tests, designer, синхронизация с URL) + экземпляр `runtime`.
 - `src/runtime/` — ES-модули рантайм-слоя: `lab-engine.js`, `runtime.js` (`LabRuntime`), `sqlite-engine.js`, `pglite-engine.js`, `workbench.js`.
-- `src/data/` — данные как ES-модули: `courses.js` (4 курса), `tasks.js`/`dataset.js` (контент Tests + датасет).
+- `src/data/` — данные как ES-модули: `courses.js` (метаданные 4 курсов), `lectures/` — содержимое лекций, по файлу на курс (`databases.js`, `programming.js`, `operating-systems.js`, `software-products.js`), `tasks.js`/`dataset.js` (контент Tests + датасет).
 - `src/design/er-designer.js` — ER Designer как императивный canvas-виджет (монтируется React-обёрткой `DesignerOverlay`).
 - `src/components/` — `AppHeader.jsx`, `AppModal.jsx`, `shared/` (LabRail, ResultTable, ConnectionStatus), `database/` (DatabaseSandbox, DatabaseStudio, DesignerOverlay), `programming/` (ProgrammingSandbox), `lectures/` (LecturesView), `tests/` (TestsView).
 - `src/static/` — статические ассеты: `css/`, `icons/`, `manifest.webmanifest`, `service-worker.js`. `prepare-public.js` копирует их в `public/` перед `vite build`. React-ассеты идут через Vite (`public/vendor/...` для PGlite/Pyodide).
@@ -87,7 +87,7 @@ Tests — отдельная вкладка.
 
 ## Lectures
 
-Lectures — отдельный data-driven режим. Текущий каталог: базы данных, программирование IT-систем, операционные системы и специальные программные продукты. Контент курса не встраивать в `app.js`: описания и лекции хранятся в `src/data/courses.js`.
+Lectures — отдельный data-driven режим. Текущий каталог: базы данных, программирование IT-систем, операционные системы и специальные программные продукты. Контент курса не встраивать в `app.js`: метаданные курсов в `src/data/courses.js`, лекции — в отдельных файлах `src/data/lectures/<курс>.js`.
 
 Курсы «Базы данных» и «Программирование IT-систем» имеют наполненные лекции. Пока Programming Sandbox не реализован, действия из лекций программирования не должны открывать Database Sandbox или SQL Tests.
 
