@@ -25,6 +25,7 @@ let activeMode = "sandbox";
 let activeLab = "database";
 let activeCourseId = COURSES[0]?.id || "";
 let activeLectureId = COURSES[0]?.lectures?.[0]?.id || "";
+let pendingTaskId = null;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -125,6 +126,52 @@ function resultsMatch(a, b, ordered) {
   return true;
 }
 
+function syncUrl() {
+  const url = new URL(location.href);
+  if (activeMode === "sandbox") url.searchParams.delete("mode");
+  else url.searchParams.set("mode", activeMode);
+
+  url.searchParams.delete("lab");
+  url.searchParams.delete("course");
+  url.searchParams.delete("lecture");
+  url.searchParams.delete("task");
+
+  if (activeMode === "sandbox") {
+    if (activeLab !== "database") url.searchParams.set("lab", activeLab);
+  } else if (activeMode === "lectures") {
+    if (activeCourseId) url.searchParams.set("course", activeCourseId);
+    if (activeLectureId) url.searchParams.set("lecture", activeLectureId);
+  } else if (activeMode === "tests") {
+    if (currentTask) url.searchParams.set("task", currentTask.id);
+  }
+
+  history.replaceState(null, "", url);
+}
+
+function readStateFromUrl() {
+  const params = new URL(location.href).searchParams;
+  const mode = params.get("mode");
+  if (["tests", "lectures"].includes(mode)) activeMode = mode;
+
+  const lab = params.get("lab");
+  if (lab === "programming" || lab === "database") activeLab = lab;
+
+  const course = params.get("course");
+  if (course && COURSES.some((item) => item.id === course)) {
+    activeCourseId = course;
+    const lecture = params.get("lecture");
+    const courseObj = COURSES.find((item) => item.id === course);
+    if (lecture && courseObj.lectures.some((item) => item.id === lecture)) {
+      activeLectureId = lecture;
+    } else {
+      activeLectureId = courseObj.lectures[0]?.id || "";
+    }
+  }
+
+  const task = params.get("task");
+  if (task && TASKS.some((item) => item.id === task)) pendingTaskId = task;
+}
+
 function setMode(mode) {
   activeMode = ["sandbox", "tests", "lectures"].includes(mode) ? mode : "sandbox";
   $("sandbox-view").classList.toggle("hidden", activeMode !== "sandbox");
@@ -135,10 +182,7 @@ function setMode(mode) {
   $("tab-lectures").classList.toggle("active", activeMode === "lectures");
   $("progress").classList.toggle("hidden", activeMode !== "tests");
 
-  const url = new URL(location.href);
-  if (activeMode === "sandbox") url.searchParams.delete("mode");
-  else url.searchParams.set("mode", activeMode);
-  history.replaceState(null, "", url);
+  syncUrl();
 
   if (activeMode === "sandbox") {
     syncSandboxDraft();
@@ -155,6 +199,7 @@ function setLab(lab) {
   document.querySelectorAll("[data-open-lab]").forEach((button) => {
     button.classList.toggle("active", button.dataset.openLab === activeLab);
   });
+  syncUrl();
   if (activeLab === "programming") $("program-editor").focus();
   else $("sandbox-editor").focus();
 }
@@ -164,8 +209,10 @@ function renderLectures() {
   if (!courseList || !COURSES.length) return;
 
   const readyCount = COURSES.filter((item) => item.status === "available").length;
-  $("lectures-ready-count").textContent = String(readyCount);
-  $("lectures-ready-label").textContent = readyCount === 1 ? "курс доступен" : "курса доступны";
+  const readyCountEl = $("lectures-ready-count");
+  if (readyCountEl) readyCountEl.textContent = String(readyCount);
+  const readyLabelEl = $("lectures-ready-label");
+  if (readyLabelEl) readyLabelEl.textContent = readyCount === 1 ? "курс доступен" : "курса доступны";
 
   const course = COURSES.find((item) => item.id === activeCourseId) || COURSES[0];
   activeCourseId = course.id;
@@ -207,12 +254,14 @@ function renderLectures() {
       const next = COURSES.find((item) => item.id === activeCourseId);
       activeLectureId = next?.lectures?.[0]?.id || "";
       renderLectures();
+      syncUrl();
     });
   });
   $("lecture-list").querySelectorAll("[data-lecture-id]").forEach((button) => {
     button.addEventListener("click", () => {
       activeLectureId = button.dataset.lectureId;
       renderLectures();
+      syncUrl();
     });
   });
 }
@@ -474,6 +523,7 @@ function selectTask(id) {
     status.className = "badge";
   }
   renderSidebar();
+  syncUrl();
 }
 
 async function runTest() {
@@ -637,6 +687,7 @@ function wireEvents() {
 }
 
 async function boot() {
+  readStateFromUrl();
   renderEngineOptions();
   updateProgress();
   renderSidebar();
@@ -644,11 +695,12 @@ async function boot() {
   window.ITStudyLab.initProgramming();
   wireEvents();
 
-  const requestedMode = new URL(location.href).searchParams.get("mode");
-  setMode(["tests", "lectures"].includes(requestedMode) ? requestedMode : "sandbox");
+  setLab(activeLab);
+  setMode(activeMode);
   await switchEngine("sqlite");
 
-  if (!currentTask && TASKS.length) selectTask(TASKS[0].id);
+  if (pendingTaskId) selectTask(pendingTaskId);
+  else if (!currentTask && TASKS.length) selectTask(TASKS[0].id);
 }
 
 boot();
