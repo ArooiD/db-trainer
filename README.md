@@ -68,7 +68,7 @@ Tests не ограничивают Sandbox и в будущем смогут и
 - «Операционные системы» — заготовка под Linux runtime;
 - «Специальные программные продукты» — заготовка под Docker, Compose, Git и CI/CD.
 
-Содержание хранится отдельно от интерфейса в `web/js/lectures.js`.
+Содержание хранится отдельно от интерфейса в `src/data/courses.js`.
 
 ## Архитектура
 
@@ -129,7 +129,9 @@ IT Study Lab
 
 ```text
 .github/workflows/       build + GitHub Pages
-web/                     источник браузерного приложения
+src/                     весь исходник приложения
+src/static/            css, icons, manifest, service-worker
+prepare-public.js    копирует src/static + vendor runtime в public/ перед vite build
   css/
   js/
     engines/             runtime adapters
@@ -146,7 +148,7 @@ seed.py                  исходные данные учебной БД
 tools/                   генераторы
 ```
 
-`src/` — React-приложение и точка входа Vite. `web/` хранит учебные runtime и статические assets. `dist/` — генерируемый результат Vite и руками не редактируется.
+`src/` — весь источник: React-компоненты, runtime-движки, данные и статические ассеты в `src/static/`. `dist/` — генерируемый результат Vite и руками не редактируется.
 
 ## Локальный запуск
 
@@ -167,7 +169,7 @@ npm run dev -- --port 8000
 
 Push в `main` автоматически собирает приложение и публикует каталог `dist/` в GitHub Pages.
 
-PWA-файлы (`manifest.webmanifest`, `service-worker.js`, иконки) находятся в `web/` и автоматически попадают в `dist/`. Относительные URL сохраняют работу как на корневом домене, так и по адресу проекта `/db-trainer/`.
+PWA-файлы (`manifest.webmanifest`, `service-worker.js`, иконки) находятся в `src/static/` и автоматически попадают в `dist/`. Относительные URL сохраняют работу как на корневом домене, так и по адресу проекта `/db-trainer/`.
 
 ```text
 push main

@@ -10,7 +10,7 @@ IT Study Lab — browser-first интерактивная песочница д�
 
 ## Текущий source of truth
 
-Приложение — обычное React-приложение (Vite + React 19). Legacy vanilla JS в `web/js/` удалён; React собирается из корня (`index.html` → `src/main.jsx`).
+Приложение — обычное React-приложение (Vite + React 19). Legacy vanilla JS удалён; React собирается из корня (`index.html` → `src/main.jsx`).
 
 - `index.html` — entry Vite, `<div id="root">` + `/src/main.jsx`.
 - `src/main.jsx` — точка монтирования React.
@@ -20,7 +20,7 @@ IT Study Lab — browser-first интерактивная песочница д�
 - `src/data/` — данные как ES-модули: `courses.js` (4 курса), `tasks.js`/`dataset.js` (контент Tests + датасет).
 - `src/design/er-designer.js` — ER Designer как императивный canvas-виджет (монтируется React-обёрткой `DesignerOverlay`).
 - `src/components/` — `AppHeader.jsx`, `AppModal.jsx`, `shared/` (LabRail, ResultTable, ConnectionStatus), `database/` (DatabaseSandbox, DatabaseStudio, DesignerOverlay), `programming/` (ProgrammingSandbox), `lectures/` (LecturesView), `tests/` (TestsView).
-- `web/` — статические ассеты: `css/`, `icons/`, `manifest.webmanifest`, `service-worker.js`. React-ассеты идут через Vite (`public/vendor/...` для PGlite/Pyodide).
+- `src/static/` — статические ассеты: `css/`, `icons/`, `manifest.webmanifest`, `service-worker.js`. `prepare-public.js` копирует их в `public/` перед `vite build`. React-ассеты идут через Vite (`public/vendor/...` для PGlite/Pyodide).
 - `seed.py` — исходные учебные данные; `tools/gen_data.py` генерирует `src/data/dataset.js`.
 - `dist/` — генерируемый результат Vite; вручную не редактировать.
 
@@ -87,13 +87,13 @@ Tests — отдельная вкладка.
 
 ## Lectures
 
-Lectures — отдельный data-driven режим. Текущий каталог: базы данных, программирование IT-систем, операционные системы и специальные программные продукты. Контент курса не встраивать в `app.js`: описания и лекции хранятся в `web/js/lectures.js`.
+Lectures — отдельный data-driven режим. Текущий каталог: базы данных, программирование IT-систем, операционные системы и специальные программные продукты. Контент курса не встраивать в `app.js`: описания и лекции хранятся в `src/data/courses.js`.
 
 Курсы «Базы данных» и «Программирование IT-систем» имеют наполненные лекции. Пока Programming Sandbox не реализован, действия из лекций программирования не должны открывать Database Sandbox или SQL Tests.
 
 ## Runtime API
 
-Текущий базовый контракт находится в `web/js/engines/lab-engine.js`, диспетчер — в `runtime.js`.
+Базовый контракт находится в `src/runtime/lab-engine.js`, диспетчер — в `src/runtime/runtime.js`.
 
 Новые движки должны подключаться через общий runtime и не требовать переписывания shell.
 

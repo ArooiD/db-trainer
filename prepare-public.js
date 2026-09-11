@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = __dirname;
-const source = path.join(root, "web");
+const source = path.join(root, "src", "static");
 const publicDir = path.join(root, "public");
 
 fs.rmSync(publicDir, { recursive: true, force: true });
