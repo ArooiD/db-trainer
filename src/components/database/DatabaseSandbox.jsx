@@ -3,18 +3,44 @@ import ResultTable from "../shared/ResultTable.jsx";
 import DatabaseStudio from "./DatabaseStudio.jsx";
 
 export default function DatabaseSandbox() {
-  const { nav, sandbox, setDraft, runSandbox, resetSandbox, clearSandbox, clearHistory, showHistoryCommand, engineBusy, engineId, engines } = useApp();
+  const {
+    nav, sandbox, setDraft, runSandbox, resetSandbox, clearSandbox, clearHistory, showHistoryCommand,
+    engineBusy, connections, activeConnId, switchConnection, closeConnection, renameConnection, setSettingsOpen, openTransfer,
+  } = useApp();
   const active = nav.mode === "sandbox" && nav.lab === "database";
 
-  const engine = engines.find((item) => item.id === engineId);
-  const meta = {
-    label: engine?.label || "SQLite",
-    tech: engine?.technology || engine?.dialect || "sql.js / WASM",
-  };
+  const meta = connections.find((c) => c.id === activeConnId)?.meta || { label: "—", technology: "", dialect: "" };
 
   return (
     <div className={`database-ide${active ? "" : " hidden"}`}>
       <main className="ide-main">
+        <div className="connection-bar" role="tablist" aria-label="Подключения к базам">
+          {connections.map((conn) => (
+            <div
+              key={conn.id}
+              className={`connection-chip${conn.id === activeConnId ? " active" : ""}`}
+              role="tab"
+              aria-selected={conn.id === activeConnId}
+              onClick={() => switchConnection(conn.id)}
+              onDoubleClick={() => renameConnection(conn.id)}
+            >
+              <span className={`conn-dot ${conn.engineId}`} />
+              <span className="conn-label">{conn.label}</span>
+              <button
+                className="conn-close"
+                title="Закрыть подключение"
+                onClick={(event) => { event.stopPropagation(); closeConnection(conn.id); }}
+              >×</button>
+            </div>
+          ))}
+          <button className="connection-add" title="Новое подключение" onClick={() => setSettingsOpen(true)}>＋</button>
+          {connections.length >= 2 && (
+            <button className="connection-transfer" title="Имитировать перенос данных между базами" onClick={() => openTransfer()}>
+              ⇄ Перенос
+            </button>
+          )}
+        </div>
+
         <div className="ide-document-tabs">
           <button className="ide-document-tab active">
             <span className="tab-table-icon">▦</span>
@@ -23,9 +49,10 @@ export default function DatabaseSandbox() {
           </button>
           <button className="ide-new-tab" title="Новый запрос" onClick={clearSandbox}>＋</button>
           <div className="ide-runtime-caption">
-            <span>{meta.label}</span><small>{meta.tech}</small>
+            <span>{meta.label}</span><small>{meta.technology || meta.dialect || "runtime"}</small>
           </div>
         </div>
+
 
         <div className="ide-workspace">
           <section className="ide-center">

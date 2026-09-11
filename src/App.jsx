@@ -2,12 +2,16 @@ import { useEffect } from "react";
 import { AppProvider, useApp } from "./state/app-store.jsx";
 import AppHeader from "./components/AppHeader.jsx";
 import AppModal from "./components/AppModal.jsx";
+import TransferModal from "./components/shared/TransferModal.jsx";
 import LabRail from "./components/shared/LabRail.jsx";
 import DatabaseSandbox from "./components/database/DatabaseSandbox.jsx";
 import DesignerOverlay from "./components/database/DesignerOverlay.jsx";
 import ProgrammingSandbox from "./components/programming/ProgrammingSandbox.jsx";
+import PlannedModule from "./components/shared/PlannedModule.jsx";
 import LecturesView from "./components/lectures/LecturesView.jsx";
 import TestsView from "./components/tests/TestsView.jsx";
+
+const COURSE_LAB = { databases: "database", programming: "programming" };
 
 function useServiceWorker() {
   useEffect(() => {
@@ -29,6 +33,7 @@ function useServiceWorker() {
 function Shell() {
   const { nav } = useApp();
   useServiceWorker();
+  const lab = COURSE_LAB[nav.course] || "";
   const sandboxVisible = nav.mode === "sandbox";
   return (
     <>
@@ -38,11 +43,13 @@ function Shell() {
         <div className={`app-content${sandboxVisible ? "" : " hidden"}`}>
           <DatabaseSandbox />
           <ProgrammingSandbox />
+          {sandboxVisible && !lab && <PlannedModule mode="sandbox" />}
         </div>
-        {nav.mode === "tests" && <TestsView />}
+        {nav.mode === "tests" && (lab === "database" ? <TestsView /> : <PlannedModule mode="tests" />)}
         {nav.mode === "lectures" && <LecturesView />}
       </div>
       <AppModal />
+      <TransferModal />
       <DesignerOverlay />
     </>
   );

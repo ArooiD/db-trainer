@@ -25,20 +25,20 @@ export class WorkbenchSession {
     }
   }
 
-  history(engineId = this.runtime.activeId) {
-    if (!engineId) return [];
-    return [...(this.memoryHistory[engineId] || [])];
+  history(sessionKey = this.runtime.activeConnId) {
+    if (!sessionKey) return [];
+    return [...(this.memoryHistory[sessionKey] || [])];
   }
 
-  clearHistory(engineId = this.runtime.activeId) {
-    if (!engineId) return;
-    this.memoryHistory[engineId] = [];
+  clearHistory(sessionKey = this.runtime.activeConnId) {
+    if (!sessionKey) return;
+    this.memoryHistory[sessionKey] = [];
     this._save();
   }
 
   async run(command, options = {}) {
     if (!this.runtime.active) throw new Error("No active runtime");
-    const engineId = this.runtime.activeId;
+    const engineId = this.runtime.activeConnId;
     const started = performance.now();
     const result = await this.runtime.execute(command, options);
     const durationMs = Math.max(0, Math.round(performance.now() - started));

@@ -1,5 +1,6 @@
 import { useApp } from "../state/app-store.jsx";
 import ConnectionStatus from "./shared/ConnectionStatus.jsx";
+import RuntimeSettings from "./shared/RuntimeSettings.jsx";
 
 const MODES = [
   { id: "lectures", label: "Лекции" },
@@ -8,7 +9,8 @@ const MODES = [
 ];
 
 export default function AppHeader() {
-  const { nav, setMode, engines, engineId, engineStatus, engineBusy, switchEngine, tests, TASKS } = useApp();
+  const { nav, setMode, connections, activeConnId, setSettingsOpen, engineStatus, tests, TASKS } = useApp();
+  const activeConn = connections.find((c) => c.id === activeConnId);
 
   return (
     <header className="topbar app-topbar">
@@ -29,23 +31,18 @@ export default function AppHeader() {
         ))}
       </nav>
 
-      <div className="runtime-switch">
-        <label htmlFor="engine-select">Runtime</label>
-        <select
-          id="engine-select"
-          aria-label="Выбор runtime"
-          value={engineId}
-          disabled={engineBusy}
-          onChange={(event) => switchEngine(event.target.value)}
-        >
-          {engines.map((engine) => (
-            <option key={engine.id} value={engine.id}>
-              {engine.label} · {engine.technology || engine.dialect || "runtime"}
-            </option>
-          ))}
-        </select>
-        <span className={`runtime-status ${engineStatus.state}`.trim()}>{engineStatus.text}</span>
-      </div>
+      <button
+        className="runtime-gear"
+        title="Настройки runtime и подключений"
+        aria-label="Настройки runtime"
+        onClick={() => setSettingsOpen(true)}
+      >
+        <span className="gear-icon" aria-hidden="true">⚙</span>
+        <span className="gear-meta">
+          <strong>{connections.length} {plural(connections.length)}</strong>
+          <small className={`runtime-status ${engineStatus.state}`.trim()}>{activeConn ? activeConn.label : engineStatus.text}</small>
+        </span>
+      </button>
 
       <div className={`progress${nav.mode === "tests" ? "" : " hidden"}`}>
         Tests: {tests.solved.size} / {TASKS.length}
@@ -54,6 +51,15 @@ export default function AppHeader() {
       <div className="pwa-controls">
         <ConnectionStatus />
       </div>
+
+      <RuntimeSettings />
     </header>
   );
 }
+
+function plural(count) {
+  if (count === 1) return "подключение";
+  if (count >= 2 && count <= 4) return "подключения";
+  return "подключений";
+}
+
