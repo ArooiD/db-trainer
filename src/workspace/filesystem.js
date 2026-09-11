@@ -117,6 +117,65 @@ export async function removeFile(path) {
   await dir.removeEntry(name);
 }
 
+export async function isDir(path) {
+  try {
+    await resolveDir(path, false);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Remove a file or directory (recursive) regardless of kind.
+export async function removePath(path) {
+  const full = normalize(path);
+  const idx = full.lastIndexOf("/");
+  const parent = idx === -1 ? "" : full.slice(0, idx);
+  const name = idx === -1 ? full : full.slice(idx + 1);
+  const dir = await resolveDir(parent, false);
+  try {
+    await dir.getFileHandle(name);
+    await dir.removeEntry(name);
+  } catch {
+    await dir.removeEntry(name, { recursive: true });
+  }
+}
+
+async function copyTree(srcDirHandle, dstDirHandle) {
+  for await (const [name, handle] of srcDirHandle.entries()) {
+    if (handle.kind === "file") {
+      const file = await handle.getFile();
+      const nh = await dstDirHandle.getFileHandle(name, { create: true });
+      const w = await nh.createWritable();
+      await w.write(file);
+      await w.close();
+    } else {
+      const nd = await dstDirHandle.getDirectoryHandle(name, { create: true });
+      await copyTree(handle, nd);
+    }
+  }
+}
+
+// Move/rename a file or (recursively) a directory. OPFS has no native move,
+// so directories are deep-copied then removed.
+export async function movePath(oldPath, newPath) {
+  if (await exists(newPath)) throw new Error(`Target exists: ${newPath}`);
+  if (await isDir(oldPath)) {
+    const full = normalize(newPath);
+    const idx = full.lastIndexOf("/");
+    const parent = idx === -1 ? "" : full.slice(0, idx);
+    const name = idx === -1 ? full : full.slice(idx + 1);
+    const dst = await resolveDir(parent, true);
+    const nd = await dst.getDirectoryHandle(name, { create: true });
+    await copyTree(await resolveDir(oldPath, false), nd);
+    await removePath(oldPath);
+  } else {
+    const file = await readFile(oldPath);
+    await writeFile(newPath, file);
+    await removeFile(oldPath);
+  }
+}
+
 // List immediate children of a directory. Missing dir => [].
 export async function list(path) {
   const entries = [];
