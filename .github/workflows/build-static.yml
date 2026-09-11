@@ -42,17 +42,15 @@ jobs:
           test -f dist/icons/icon-192.png
           test -f dist/icons/icon-512.png
           test -f dist/vendor/pglite/index.js
-          test -f dist-standalone/index.html
+          test -f dist/vendor/pyodide/pyodide.mjs
           echo "IT Study Lab static build is ready"
-          du -sh dist dist-standalone
+          du -sh dist
 
       - name: Upload downloadable static artifact
         uses: actions/upload-artifact@v4
         with:
           name: it-study-lab-static-${{ github.sha }}
-          path: |
-            dist/
-            dist-standalone/index.html
+          path: dist/
           if-no-files-found: error
           retention-days: 30
           compression-level: 9
