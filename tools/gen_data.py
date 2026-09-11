@@ -1,5 +1,5 @@
-# Сгенерировать web/js/data.js и web/vendor/sql-binary.js из seed.py и vendored wasm.
-import base64, json, subprocess, sys
+# Сгенерировать данные Database Sandbox из seed.py.
+import base64, json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,7 +28,4 @@ if wasm.is_file():
     (ROOT / "web" / "vendor" / "sql-binary.js").write_text(
         'window.SQL_WASM_B64 = "' + b64 + '";\n', encoding="utf-8")
 
-# единый источник заданий: web/js/tasks.js == js/tasks.js
-subprocess.run(["cp", str(ROOT / "js" / "tasks.js"),
-                str(ROOT / "web" / "js" / "tasks.js")], check=True)
 print("web/js/data.js и web/vendor/sql-binary.js обновлены")
