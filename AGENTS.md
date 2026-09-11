@@ -10,8 +10,9 @@ IT Study Lab — browser-first интерактивная песочница д�
 
 ## Текущий source of truth
 
-- `web/` — исходники браузерного приложения.
-- `web/index.html` — shell Sandbox + Tests.
+- `src/` — React-приложение и точка входа Vite.
+- `src/components/` — компоненты header, песочниц, лекций, тестов и modal.
+- `web/` — browser runtime, статические assets и учебные данные.
 - `web/js/app.js` — orchestration UI.
 - `web/js/workbench.js` — универсальная интерактивная сессия, история запусков и bridge к runtime.
 - `web/js/engines/` — технологические adapters.
@@ -21,7 +22,7 @@ IT Study Lab — browser-first интерактивная песочница д�
 - `web/js/design.js` — ER Designer.
 - `web/js/data.js` — browser dataset.
 - `seed.py` — исходные учебные данные.
-- `dist/`, `dist-standalone/` — генерируемые результаты; вручную не редактировать.
+- `dist/` — генерируемый результат Vite; вручную не редактировать.
 
 ## Текущие runtimes
 

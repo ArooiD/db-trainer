@@ -1,4 +1,10 @@
 import { useEffect, useState } from "react";
+import AppHeader from "./components/AppHeader.jsx";
+import DatabaseSandbox from "./components/DatabaseSandbox.jsx";
+import ProgrammingSandbox from "./components/ProgrammingSandbox.jsx";
+import LecturesView from "./components/LecturesView.jsx";
+import TestsView from "./components/TestsView.jsx";
+import AppModal from "./components/AppModal.jsx";
 
 const legacyScripts = [
   "vendor/sql-wasm.js",
@@ -33,30 +39,31 @@ export default function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let disposed = false;
-    const root = document.getElementById("legacy-root");
-
     async function boot() {
       try {
-        const response = await fetch(`${import.meta.env.BASE_URL}legacy-shell.html`);
-        if (!response.ok) throw new Error("Не удалось загрузить оболочку приложения.");
-        const documentFragment = new DOMParser().parseFromString(await response.text(), "text/html");
-        documentFragment.querySelectorAll("script").forEach((node) => node.remove());
-        if (disposed) return;
-        root.innerHTML = documentFragment.body.innerHTML;
         for (const source of legacyScripts) {
-          if (disposed) return;
           await loadScript(source);
         }
       } catch (cause) {
-        if (!disposed) setError(cause instanceof Error ? cause.message : String(cause));
+        setError(cause instanceof Error ? cause.message : String(cause));
       }
     }
 
-    boot();
-    return () => { disposed = true; };
+    if (!window.__itStudyLabBootPromise) window.__itStudyLabBootPromise = boot();
+    window.__itStudyLabBootPromise.catch((cause) => setError(cause instanceof Error ? cause.message : String(cause)));
   }, []);
 
   if (error) return <main className="boot-error">{error}</main>;
-  return <main id="legacy-root" aria-busy="true"><div className="empty">Загрузка IT Study Lab…</div></main>;
+  return (
+    <>
+      <AppHeader />
+      <section id="sandbox-view" className="product-view">
+        <DatabaseSandbox />
+        <ProgrammingSandbox />
+      </section>
+      <LecturesView />
+      <TestsView />
+      <AppModal />
+    </>
+  );
 }

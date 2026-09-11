@@ -13,7 +13,6 @@ for (const entry of fs.readdirSync(source)) {
   fs.cpSync(path.join(source, entry), path.join(publicDir, entry), { recursive: true });
 }
 
-fs.copyFileSync(path.join(source, "index.html"), path.join(publicDir, "legacy-shell.html"));
 fs.cpSync(path.join(root, "node_modules", "@electric-sql", "pglite", "dist"), path.join(publicDir, "vendor", "pglite"), { recursive: true });
 fs.cpSync(path.join(root, "node_modules", "pyodide"), path.join(publicDir, "vendor", "pyodide"), { recursive: true });
 
