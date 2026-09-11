@@ -12,6 +12,7 @@ body {
   padding: 12px 20px; background: #171e2e;
   border-bottom: 1px solid #2b3450;
 }
+.app-topbar { height: var(--topbar-h); box-sizing: border-box; }
 .brand { font-weight: 700; font-size: 18px; }
 .progress { color: #8a97b3; font-variant-numeric: tabular-nums; }
 .topbar-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }

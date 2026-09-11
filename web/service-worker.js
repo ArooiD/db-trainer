@@ -1,4 +1,4 @@
-const CACHE_VERSION = "it-study-lab-v15";
+const CACHE_VERSION = "it-study-lab-v16";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -11,9 +11,9 @@ self.addEventListener("install", (event) => {
         "./icons/icon-192.png",
         "./icons/icon-512.png",
         "./icons/apple-touch-icon.png",
-        "./css/style.css?v=14",
-        "./css/lab.css?v=14",
-        "./css/database-studio.css?v=14",
+        "./css/style.css?v=15",
+        "./css/lab.css?v=15",
+        "./css/database-studio.css?v=15",
       ])
     )
   );
