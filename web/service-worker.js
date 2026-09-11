@@ -1,4 +1,4 @@
-const CACHE_VERSION = "it-study-lab-v7";
+const CACHE_VERSION = "it-study-lab-v8";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -66,15 +66,14 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
         }
         return response;
-      });
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(request))
   );
 });
