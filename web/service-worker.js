@@ -1,37 +1,21 @@
-const CACHE_VERSION = "it-study-lab-v14";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./icons/app-icon.svg",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png",
-  "./css/style.css?v=14",
-  "./css/lab.css?v=14",
-  "./css/database-studio.css?v=14",
-  "./js/app.js",
-  "./js/data.js",
-  "./js/tasks.js",
-  "./js/lectures.js",
-  "./js/db.js",
-  "./js/workbench.js",
-  "./js/design.js",
- "./js/database-studio.js",
-  "./js/programming.js",
-  "./js/pwa.js",
-  "./js/engines/lab-engine.js",
-  "./js/engines/runtime.js",
-  "./js/engines/sqlite-engine.js",
-  "./js/engines/pglite-engine.js",
-  "./vendor/sql-wasm.js",
-  "./vendor/sql-binary.js",
-  "./vendor/sql-wasm.wasm"
-];
+const CACHE_VERSION = "it-study-lab-v15";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_VERSION).then((cache) =>
+      cache.addAll([
+        "./",
+        "./index.html",
+        "./manifest.webmanifest",
+        "./icons/app-icon.svg",
+        "./icons/icon-192.png",
+        "./icons/icon-512.png",
+        "./icons/apple-touch-icon.png",
+        "./css/style.css?v=14",
+        "./css/lab.css?v=14",
+        "./css/database-studio.css?v=14",
+      ])
+    )
   );
   self.skipWaiting();
 });

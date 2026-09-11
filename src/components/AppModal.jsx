@@ -1,12 +1,14 @@
+import { useApp } from "../state/app-store.jsx";
+
 export default function AppModal() {
+  const { modalContent, closeModal } = useApp();
+  if (!modalContent) return null;
   return (
-    <>
-  <div id="modal" className="modal hidden">
-    <div className="modal-body">
-      <button className="modal-close" id="modal-close">✕</button>
-      <div id="modal-content"></div>
+    <div className="modal" onClick={(event) => { if (event.target === event.currentTarget) closeModal(); }}>
+      <div className="modal-body">
+        <button className="modal-close" onClick={closeModal}>✕</button>
+        <div id="modal-content">{modalContent}</div>
+      </div>
     </div>
-  </div>
-    </>
   );
 }

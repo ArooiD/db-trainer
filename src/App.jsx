@@ -1,75 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { AppProvider, useApp } from "./state/app-store.jsx";
 import AppHeader from "./components/AppHeader.jsx";
-import LabRail from "./components/shared/LabRail.jsx";
-import DatabaseSandbox from "./components/DatabaseSandbox.jsx";
-import ProgrammingSandbox from "./components/ProgrammingSandbox.jsx";
-import LecturesView from "./components/LecturesView.jsx";
-import TestsView from "./components/TestsView.jsx";
 import AppModal from "./components/AppModal.jsx";
+import LabRail from "./components/shared/LabRail.jsx";
+import DatabaseSandbox from "./components/database/DatabaseSandbox.jsx";
+import DesignerOverlay from "./components/database/DesignerOverlay.jsx";
+import ProgrammingSandbox from "./components/programming/ProgrammingSandbox.jsx";
+import LecturesView from "./components/lectures/LecturesView.jsx";
+import TestsView from "./components/tests/TestsView.jsx";
 
-const legacyScripts = [
-  "vendor/sql-wasm.js",
-  "vendor/sql-binary.js",
-  "js/data.js",
-  "js/tasks.js",
-  "js/lectures.js",
-  "js/engines/lab-engine.js",
-  "js/engines/runtime.js",
-  "js/engines/sqlite-engine.js",
-  "js/engines/pglite-engine.js",
-  "js/db.js",
-  "js/workbench.js",
-  "js/design.js",
-  "js/programming.js",
-  "js/app.js",
-  "js/database-studio.js",
-  "js/pwa.js"
-];
-
-function loadScript(source) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = `${import.meta.env.BASE_URL}${source}`;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error(`Не удалось загрузить ${source}`));
-    document.body.append(script);
-  });
+function useServiceWorker() {
+  useEffect(() => {
+    if (!("serviceWorker" in navigator) || location.protocol === "file:") return undefined;
+    const reloadKey = "it-study-lab.pwa-controller-reload";
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (sessionStorage.getItem(reloadKey)) return;
+      sessionStorage.setItem(reloadKey, "1");
+      location.reload();
+    });
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .then(() => sessionStorage.removeItem(reloadKey))
+      .catch((error) => console.warn("Service Worker registration failed", error));
+    return undefined;
+  }, []);
 }
 
-export default function App() {
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    async function boot() {
-      try {
-        for (const source of legacyScripts) {
-          await loadScript(source);
-        }
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : String(cause));
-      }
-    }
-
-    if (!window.__itStudyLabBootPromise) window.__itStudyLabBootPromise = boot();
-    window.__itStudyLabBootPromise.catch((cause) => setError(cause instanceof Error ? cause.message : String(cause)));
-  }, []);
-
-  if (error) return <main className="boot-error">{error}</main>;
+function Shell() {
+  const { nav } = useApp();
+  useServiceWorker();
+  const sandboxVisible = nav.mode === "sandbox";
   return (
     <>
       <AppHeader />
       <div className="app-shell">
-        <LabRail active="database" />
-        <div className="app-content">
-          <section id="sandbox-view" className="product-view">
-            <DatabaseSandbox />
-            <ProgrammingSandbox />
-          </section>
-          <LecturesView />
-          <TestsView />
+        <LabRail />
+        <div className={`app-content${sandboxVisible ? "" : " hidden"}`}>
+          <DatabaseSandbox />
+          <ProgrammingSandbox />
         </div>
+        {nav.mode === "tests" && <TestsView />}
+        {nav.mode === "lectures" && <LecturesView />}
       </div>
       <AppModal />
+      <DesignerOverlay />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <Shell />
+    </AppProvider>
   );
 }

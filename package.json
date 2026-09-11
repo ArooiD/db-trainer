@@ -13,7 +13,8 @@
     "@electric-sql/pglite": "0.5.8",
     "pyodide": "^314.0.6",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "sql.js": "^1.11.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",

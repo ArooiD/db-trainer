@@ -10,18 +10,18 @@ IT Study Lab — browser-first интерактивная песочница д�
 
 ## Текущий source of truth
 
-- `src/` — React-приложение и точка входа Vite.
-- `src/components/` — компоненты header, песочниц, лекций, тестов и modal.
-- `web/` — browser runtime, статические assets и учебные данные.
-- `web/js/app.js` — orchestration UI.
-- `web/js/workbench.js` — универсальная интерактивная сессия, история запусков и bridge к runtime.
-- `web/js/engines/` — технологические adapters.
-- `web/js/db.js` — совместимый DB facade над `LabRuntime`.
-- `web/js/tasks.js` — только контент блока SQL Tests / Practice.
-- `web/js/lectures.js` — каталог курсов и контент вкладки Lectures.
-- `web/js/design.js` — ER Designer.
-- `web/js/data.js` — browser dataset.
-- `seed.py` — исходные учебные данные.
+Приложение — обычное React-приложение (Vite + React 19). Legacy vanilla JS в `web/js/` удалён; React собирается из корня (`index.html` → `src/main.jsx`).
+
+- `index.html` — entry Vite, `<div id="root">` + `/src/main.jsx`.
+- `src/main.jsx` — точка монтирования React.
+- `src/App.jsx` — layout (header + rail + режимы), регистрация Service Worker.
+- `src/state/app-store.jsx` — React Context: весь стор приложения (навигация, режимы, sandbox, tests, designer, синхронизация с URL) + экземпляр `runtime`.
+- `src/runtime/` — ES-модули рантайм-слоя: `lab-engine.js`, `runtime.js` (`LabRuntime`), `sqlite-engine.js`, `pglite-engine.js`, `workbench.js`.
+- `src/data/` — данные как ES-модули: `courses.js` (4 курса), `tasks.js`/`dataset.js` (контент Tests + датасет).
+- `src/design/er-designer.js` — ER Designer как императивный canvas-виджет (монтируется React-обёрткой `DesignerOverlay`).
+- `src/components/` — `AppHeader.jsx`, `AppModal.jsx`, `shared/` (LabRail, ResultTable, ConnectionStatus), `database/` (DatabaseSandbox, DatabaseStudio, DesignerOverlay), `programming/` (ProgrammingSandbox), `lectures/` (LecturesView), `tests/` (TestsView).
+- `web/` — статические ассеты: `css/`, `icons/`, `manifest.webmanifest`, `service-worker.js`. React-ассеты идут через Vite (`public/vendor/...` для PGlite/Pyodide).
+- `seed.py` — исходные учебные данные; `tools/gen_data.py` генерирует `src/data/dataset.js`.
 - `dist/` — генерируемый результат Vite; вручную не редактировать.
 
 ## Текущие runtimes
@@ -164,16 +164,18 @@ npm install
 npm run build
 ```
 
-`npm run build`:
+`npm run build` = `node prepare-public.js && vite build`:
 
-1. `build_dist.js` копирует `web/` в `dist/` и добавляет локальный PGlite runtime.
-2. `build_inline.js` делает `dist-standalone/index.html` с SQLite.
+1. `prepare-public.js` копирует учебные данные и кладёт локальные PGlite и Pyodide в `public/vendor/` (из зафиксированных npm-зависимостей), чтобы GitHub Pages оставался самодостаточным.
+2. `vite build` собирает React-приложение из `index.html` в `dist/` (хешерованные ассеты в `dist/assets/`).
 
 Для локального HTTP запуска:
 
 ```bash
 python3 -m http.server 8000 -d dist
 ```
+
+Для разработки: `npm run dev` (Vite dev server с HMR).
 
 ## GitHub Pages
 
@@ -183,10 +185,10 @@ Core-функциональность должна оставаться совм
 
 ## ER Designer
 
-`web/js/design.js` предоставляет `window.Designer.open(task|null)`.
+`src/design/er-designer.js` — императивный canvas-виджет, экспортирует `openDesigner(task|null)` и `closeDesigner()`. React-обёртка `src/components/database/DesignerOverlay.jsx` монтирует его по состоянию `designer.open` в сторе; кнопка закрытия внутри overlay диспатчит событие `it-study-lab:designer-close`, чтобы синхронизировать стор.
 
-- `open(null)` — свободное проектирование из Sandbox.
-- `open(task)` — проектирование в контексте Tests.
+- `openDesigner(null)` — свободное проектирование из Sandbox.
+- `openDesigner(task)` — проектирование в контексте Tests.
 - `.hidden` должен сохранять `!important`, потому что fullscreen/modal компоненты используют собственный `display`.
 
 ## Что не делать
@@ -212,7 +214,8 @@ npm run build
 ```text
 dist/index.html
 dist/vendor/pglite/index.js
-dist-standalone/index.html
+dist/vendor/pyodide/pyodide.mjs
+dist/service-worker.js
 ```
 
 Для UI-проверки предпочтителен browser smoke test: открыть Sandbox, выполнить SQLite запрос, переключиться на PostgreSQL и выполнить запрос, затем открыть Tests и проверить одно задание.

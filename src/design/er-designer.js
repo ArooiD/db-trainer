@@ -1,11 +1,5 @@
-// Режим проектирования БД: canvas-редактор ER-диаграммы.
-// Таблицы: создавать, таскать, редактировать колонки (имя/тип/PK), связывать
-// FK перетаскиванием с «точкой» на правой стороне колонки. Пан — ЛКМ по фону,
-// зум — колесо. Модель автосохраняется в localStorage (по заданию), справа —
-// панель редактирования и готовый CREATE TABLE.
-
-(function () {
-  const COLORS = {
+// Canvas ER-designer (imperative canvas widget, mounted by React DesignerOverlay).
+const COLORS = {
     bg: "#0b1120", grid: "#141d33", node: "#171e2e", nodeBorder: "#2b3450",
     header: "#4f8cff", text: "#e6ebf5", muted: "#8a97b3",
     pk: "#ffcc66", fk: "#38d39f", link: "#4f8cff", linkHi: "#38d39f",
@@ -498,7 +492,9 @@
   function close() {
     overlay.classList.add("hidden");
     if (raf) { cancelAnimationFrame(raf); raf = null; }
+    window.dispatchEvent(new CustomEvent("it-study-lab:designer-close"));
   }
 
-  window.Designer = { open, close };
-})();
+  
+export function openDesigner(task) { open(task); }
+export function closeDesigner() { close(); }

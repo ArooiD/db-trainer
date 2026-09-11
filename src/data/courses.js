@@ -1,5 +1,4 @@
-// Data-driven catalog for the Lectures mode.
-window.IT_STUDY_COURSES = [
+export const COURSES = [
   {
     id: "databases",
     code: "DB",
@@ -168,4 +167,4 @@ window.IT_STUDY_COURSES = [
       { id: "ops-cicd", title: "Git и CI/CD", duration: "план", level: "Средний", summary: "Ветки, pipeline, артефакты, окружения и доставка изменений." }
     ]
   }
-];
+]

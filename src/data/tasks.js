@@ -1,10 +1,4 @@
-// Задания тренажёра.
-// Каждое задание: id, level, title, description, hint, solution.
-// Ожидаемый результат вычисляется приложением: solution запускается на свежей БД,
-// а ответ пользователя сравнивается с ним. Если ordered:false, строки сравниваются
-// без учёта порядка.
-
-window.DB_TASKS = [
+export const TASKS = [
   {
     id: 'l1-01', level: 1, title: 'Первый SELECT',
     description: 'Выведите все колонки и все строки таблицы `employees`.',
@@ -270,4 +264,4 @@ window.DB_TASKS = [
     solution: 'SELECT p.name, SUM(a.hours) AS total_hours FROM projects p JOIN assignments a ON a.project_id = p.id WHERE p.finished_at IS NULL GROUP BY p.id, p.name ORDER BY total_hours DESC;',
     ordered: true,
   },
-];
+];;
