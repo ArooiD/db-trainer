@@ -5,10 +5,18 @@
   "description": "IT Study Lab — интерактивная браузерная песочница для будущих программистов с отдельным блоком тестирования знаний.",
   "scripts": {
     "gen-data": "python3 tools/gen_data.py",
-    "build": "node build_dist.js && node build_inline.js"
+    "dev": "node prepare-public.js && vite",
+    "build": "node prepare-public.js && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.8",
-    "pyodide": "^314.0.6"
+    "pyodide": "^314.0.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.2",
+    "vite": "^7.1.3"
   }
 }

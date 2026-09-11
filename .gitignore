@@ -1,7 +1,4 @@
-__pycache__/
-*.pyc
-server.log
 node_modules/
-/dist/
-/dist-standalone/
-/dist-python/
+dist/
+dist-standalone/
+public/
