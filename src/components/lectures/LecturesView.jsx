@@ -1,50 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useEffect, useState } from "react";
 import { useApp } from "../../state/app-store.jsx";
 import { loadLectureContent } from "../../data/lecture-loader.js";
-
-const mdComponents = {
-  a: ({ href, children }) => (
-    <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>
-  ),
-  img: ({ src, alt }) => (
-    <img className="lecture-media" src={src} alt={alt || ""} loading="lazy" />
-  )
-};
-
-function LectureBody({ content }) {
-  return (
-    <div className="lecture-md">
-      <Markdown remarkPlugins={[remarkGfm]} components={mdComponents}>{content}</Markdown>
-    </div>
-  );
-}
-
-function LectureSlides({ content, meta }) {
-  const slides = useMemo(
-    () => content.split(/^\s*---\s*$/m).map((slide) => slide.trim()).filter(Boolean),
-    [content]
-  );
-  const [index, setIndex] = useState(0);
-  useEffect(() => setIndex(0), [content]);
-  const total = slides.length || 1;
-  const current = slides[Math.min(index, total - 1)] || "";
-  return (
-    <div className="lecture-slides">
-      <div className="slide-stage">
-        <div className="lecture-md slide-active">
-          <Markdown remarkPlugins={[remarkGfm]} components={mdComponents}>{current}</Markdown>
-        </div>
-      </div>
-      <div className="slide-nav">
-        <button onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0}>← Назад</button>
-        <span>{Math.min(index + 1, total)} / {total}</span>
-        <button onClick={() => setIndex((i) => Math.min(total - 1, i + 1))} disabled={index >= total - 1}>Далее →</button>
-      </div>
-    </div>
-  );
-}
+import { MarkdownBody, SlideDeck } from "../shared/MarkdownDoc.jsx";
 
 export default function LecturesView() {
   const { COURSES, nav, selectLecture, setMode, openLab } = useApp();
@@ -137,8 +94,8 @@ export default function LecturesView() {
                 {!error && content === null && <div className="lecture-loading">Загрузка материала…</div>}
                 {!error && content !== null && (
                   lecture.format === "slides"
-                    ? <LectureSlides content={content} meta={lecture} />
-                    : <LectureBody content={content} />
+                    ? <SlideDeck content={content} className="lecture-md" />
+                    : <MarkdownBody content={content} className="lecture-md" />
                 )}
 
                 <div className="lecture-actions">

@@ -168,6 +168,108 @@ tr:last-child td { border-bottom: 0; }
   .results { grid-template-columns: 1fr; }
 }
 
+/* ---- Artifacts panel (OPFS artifact bus) ---- */
+.artifacts-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; padding: 0;
+  border: 1px solid #2b3450; border-radius: 10px;
+  background: #171e2e; color: #8fb6ff; cursor: pointer;
+}
+.artifacts-trigger:hover { border-color: #40537d; color: #cfe0ff; }
+.artifacts-icon { font-size: 16px; line-height: 1; }
+
+.artifacts-body { max-width: 1000px; }
+.artifacts-subtitle { margin: 4px 0 16px; color: #8a97b3; font-size: 13px; }
+
+.artifacts-storage { margin-bottom: 14px; }
+.storage-bar { height: 6px; border-radius: 999px; background: #0b1120; overflow: hidden; }
+.storage-bar > span { display: block; height: 100%; background: linear-gradient(90deg, #4f9cf9, #38d39f); }
+.storage-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; color: #8a97b3; font-size: 12px; }
+.art-warn { display: block; margin-top: 4px; color: #ffcc66; font-size: 11px; }
+
+.artifacts-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.art-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.art-toolbar-right { display: flex; align-items: center; gap: 10px; }
+.art-count { color: #8a97b3; font-size: 12px; }
+.art-chip {
+  padding: 5px 11px; border: 1px solid #2b3450; border-radius: 999px;
+  background: #171e2e; color: #aab6d0; font-size: 12px; cursor: pointer;
+}
+.art-chip:hover { border-color: #40537d; color: #fff; }
+.art-chip.active { background: #26334f; border-color: #4f9cf9; color: #fff; }
+.art-chip:disabled { opacity: .5; cursor: default; }
+
+.artifacts-empty, .artifacts-load-error { padding: 28px; text-align: center; color: #8a97b3; font-size: 14px; }
+.artifacts-load-error { color: #ff9a9a; }
+.art-loading { padding: 20px; text-align: center; color: #6da2ff; }
+
+.art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.art-card {
+  display: grid; gap: 10px; padding: 13px;
+  border: 1px solid #2b3450; border-radius: 12px; background: #121a2b;
+}
+.art-card:hover { border-color: #40537d; }
+.art-card-open { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 11px; align-items: center; border: 0; padding: 0; background: transparent; text-align: left; cursor: pointer; color: inherit; }
+.art-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 42px; height: 42px; padding: 0 6px; border-radius: 9px;
+  background: #1e2740; color: #8fb6ff; font: 700 11px/1 "SF Mono", Consolas, monospace;
+}
+.art-main { display: grid; gap: 3px; min-width: 0; }
+.art-main strong { font-size: 13px; color: #e8eefc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.art-path { color: #6b7896; font: 11px/1.3 "SF Mono", Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.art-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.art-badge {
+  padding: 2px 8px; border-radius: 999px; font-size: 10px; text-transform: uppercase; letter-spacing: .4px;
+  background: #26334f; color: #8fb6ff;
+}
+.art-badge.type { background: #2a2140; color: #b79bff; }
+.art-badge.course { background: #123329; color: #6fe0b8; }
+.art-badge.files, .art-badge.time { background: #202738; color: #8a97b3; }
+.art-actions { display: flex; gap: 14px; }
+.art-link { padding: 0; border: 0; background: transparent; color: #6da2ff; font-size: 12px; cursor: pointer; }
+.art-link:hover { color: #cfe0ff; }
+.art-link.danger { color: #ff8a8a; margin-left: auto; }
+.art-link.danger:hover { color: #ffb4b4; }
+
+.art-notice {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  padding: 8px 16px; border-radius: 999px; background: #26334f; color: #cfe0ff; font-size: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+
+.viewer-modal { z-index: 60; }
+.viewer-body { max-width: 860px; }
+.viewer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.viewer-head h4 { margin: 0 0 8px; font-size: 16px; color: #e8eefc; }
+.viewer-actions { display: flex; gap: 12px; flex-shrink: 0; }
+
+/* ---- Markdown body + slides (shared by lectures and artifact viewer) ---- */
+.md-body { color: #d5e0f5; font-size: 14px; line-height: 1.7; }
+.md-body h1, .md-body h2, .md-body h3 { color: #fff; margin: 20px 0 10px; line-height: 1.3; }
+.md-body h1 { font-size: 22px; } .md-body h2 { font-size: 18px; } .md-body h3 { font-size: 15px; }
+.md-body p { margin: 10px 0; }
+.md-body a { color: #6da2ff; text-decoration: none; }
+.md-body a:hover { text-decoration: underline; }
+.md-body ul, .md-body ol { margin: 10px 0; padding-left: 22px; }
+.md-body li { margin: 4px 0; }
+.md-body blockquote { margin: 12px 0; padding: 6px 14px; border-left: 3px solid #40537d; color: #9fb0d0; background: #121a2b; border-radius: 0 8px 8px 0; }
+.md-body code { font-family: "SF Mono", Consolas, monospace; background: #0b1120; padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+.md-body pre { background: #0b1120; border: 1px solid #2b3450; border-radius: 9px; padding: 13px; overflow: auto; }
+.md-body pre code { background: transparent; padding: 0; }
+.md-body table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+.md-body th, .md-body td { border: 1px solid #2b3450; padding: 7px 10px; text-align: left; }
+.md-body th { background: #1e2740; color: #fff; }
+.md-body img.md-media, .md-body img { max-width: 100%; border-radius: 9px; }
+.md-body hr { border: 0; border-top: 1px solid #2b3450; margin: 18px 0; }
+
+.slide-deck { display: grid; gap: 12px; }
+.slide-stage { min-height: 220px; padding: 22px; border: 1px solid #2b3450; border-radius: 12px; background: #0f1626; }
+.slide-nav { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.slide-btn { width: 36px; height: 36px; border: 1px solid #2b3450; border-radius: 9px; background: #171e2e; color: #cfe0ff; cursor: pointer; }
+.slide-btn:disabled { opacity: .4; cursor: default; }
+.slide-counter { color: #8a97b3; font-size: 13px; min-width: 54px; text-align: center; }
+
 /* ---------- Режим проектирования ---------- */
 .designer {
   position: fixed; inset: 0; z-index: 50;

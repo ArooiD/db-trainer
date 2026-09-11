@@ -1,6 +1,7 @@
 import { useApp } from "../state/app-store.jsx";
 import ConnectionStatus from "./shared/ConnectionStatus.jsx";
 import RuntimeSettings from "./shared/RuntimeSettings.jsx";
+import { T } from "../workspace/strings.js";
 
 const MODES = [
   { id: "lectures", label: "Лекции" },
@@ -9,7 +10,7 @@ const MODES = [
 ];
 
 export default function AppHeader() {
-  const { nav, setMode, connections, activeConnId, setSettingsOpen, engineStatus, tests, TASKS } = useApp();
+  const { nav, setMode, connections, activeConnId, setSettingsOpen, setArtifactsOpen, engineStatus, tests, TASKS } = useApp();
   const activeConn = connections.find((c) => c.id === activeConnId);
 
   return (
@@ -50,6 +51,14 @@ export default function AppHeader() {
 
       <div className="pwa-controls">
         <ConnectionStatus />
+        <button
+          className="artifacts-trigger"
+          title="Мои артефакты"
+          aria-label="Мои артефакты"
+          onClick={() => setArtifactsOpen(true)}
+        >
+          <span className="artifacts-icon" aria-hidden="true">◆</span>
+        </button>
       </div>
 
       <RuntimeSettings />

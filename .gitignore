@@ -2,3 +2,6 @@ node_modules/
 dist/
 dist-standalone/
 public/
+
+__pycache__/
+tools/__pycache__/

@@ -10,6 +10,7 @@ import ProgrammingSandbox from "./components/programming/ProgrammingSandbox.jsx"
 import PlannedModule from "./components/shared/PlannedModule.jsx";
 import LecturesView from "./components/lectures/LecturesView.jsx";
 import TestsView from "./components/tests/TestsView.jsx";
+import ArtifactsView from "./components/workspace/ArtifactsView.jsx";
 
 const COURSE_LAB = { databases: "database", programming: "programming" };
 
@@ -51,6 +52,7 @@ function Shell() {
       <AppModal />
       <TransferModal />
       <DesignerOverlay />
+      <ArtifactsView />
     </>
   );
 }
