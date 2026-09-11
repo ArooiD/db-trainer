@@ -18,7 +18,7 @@ function isTextLike(name) {
 }
 
 export default function ArtifactsView() {
-  const { nav, artifactsOpen, setArtifactsOpen } = useApp();
+  const { artifactsOpen, toggleArtifacts } = useApp();
   const supported = isSupported();
 
   const [items, setItems] = useState([]);
@@ -48,10 +48,11 @@ export default function ArtifactsView() {
   }, [supported]);
 
   useEffect(() => {
-    if (!artifactsOpen) return;
+    if (!artifactsOpen) return undefined;
     refresh();
     usage().then(setStorage).catch(() => {});
     navigator.storage?.persisted?.().then((v) => setPersisted(!!v)).catch(() => {});
+    return undefined;
   }, [artifactsOpen, refresh]);
 
   useEffect(() => {
@@ -111,16 +112,18 @@ export default function ArtifactsView() {
   const slideMode = viewer && isTextLike(viewer.primary) && /\.(md|markdown)$/i.test(viewer.primary);
 
   return (
-    <div className="modal artifacts-modal" onClick={(e) => { if (e.target === e.currentTarget) setArtifactsOpen(false); }}>
-      <div className="modal-body artifacts-body">
-        <button className="modal-close" onClick={() => setArtifactsOpen(false)}>✕</button>
-        <h3>{T.title}</h3>
-        <p className="artifacts-subtitle">{T.subtitle}</p>
+    <>
+      <aside className="artifacts-dock" aria-label={T.title}>
+        <div className="art-dock-head">
+          <span className="art-dock-title">{T.title}</span>
+          <span className="art-dock-count">{items.length}</span>
+          <button className="art-dock-collapse" onClick={toggleArtifacts} title={T.title} aria-label={T.title}>›</button>
+        </div>
 
         {!supported ? (
           <div className="artifacts-load-error">{T.loadError}</div>
         ) : (
-          <>
+          <div className="art-dock-body">
             <div className="artifacts-storage">
               <div className="storage-bar" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>
               <div className="storage-meta">
@@ -143,10 +146,7 @@ export default function ArtifactsView() {
                   </button>
                 ))}
               </div>
-              <div className="art-toolbar-right">
-                <span className="art-count">{items.length} {T.count}</span>
-                <button className="art-chip" onClick={refresh}>{T.refresh}</button>
-              </div>
+              <button className="art-chip art-refresh" onClick={refresh} title={T.refresh}>↻</button>
             </div>
 
             {err && <div className="artifacts-load-error">{err}</div>}
@@ -156,34 +156,27 @@ export default function ArtifactsView() {
               <div className="artifacts-empty"><span>{T.empty}</span></div>
             )}
 
-            <div className="art-grid">
+            <div className="art-list">
               {visible.map((record) => (
-                <article key={record.id} className="art-card">
-                  <button className="art-card-open" onClick={() => openViewer(record)}>
+                <article key={record.id} className="art-row">
+                  <button className="art-row-open" onClick={() => openViewer(record)}>
                     <span className="art-icon">{kindIcon(record.primary)}</span>
                     <span className="art-main">
                       <strong>{record.title || record.primary.split("/").pop()}</strong>
-                      <small className="art-path">{record.primary}</small>
+                      <small className="art-path">{record.course} · {record.type} · {formatWhen(record.updatedAt)}</small>
                     </span>
+                    <span className="art-row-del" role="button" tabIndex={0} title={T.delete}
+                      onClick={(e) => { e.stopPropagation(); onDelete(record); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); onDelete(record); } }}>✕</span>
                   </button>
-                  <div className="art-badges">
-                    <span className="art-badge type">{record.type}</span>
-                    <span className="art-badge course">{record.course}</span>
-                    <span className="art-badge files">{record.files.length} {T.files}</span>
-                    <span className="art-badge time">{formatWhen(record.updatedAt)}</span>
-                  </div>
-                  <div className="art-actions">
-                    <button className="art-link" onClick={() => openViewer(record)}>{T.open}</button>
-                    <button className="art-link danger" onClick={() => onDelete(record)}>{T.delete}</button>
-                  </div>
                 </article>
               ))}
             </div>
-          </>
+          </div>
         )}
 
         {notice && <div className="art-notice">{notice}</div>}
-      </div>
+      </aside>
 
       {viewer && (
         <div className="modal viewer-modal" onClick={(e) => { if (e.target === e.currentTarget) setViewer(null); }}>
@@ -210,6 +203,6 @@ export default function ArtifactsView() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

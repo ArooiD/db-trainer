@@ -10,7 +10,7 @@ const MODES = [
 ];
 
 export default function AppHeader() {
-  const { nav, setMode, connections, activeConnId, setSettingsOpen, setArtifactsOpen, engineStatus, tests, TASKS } = useApp();
+  const { nav, setMode, connections, activeConnId, setSettingsOpen, toggleArtifacts, artifactsOpen, engineStatus, tests, TASKS } = useApp();
   const activeConn = connections.find((c) => c.id === activeConnId);
 
   return (
@@ -52,10 +52,11 @@ export default function AppHeader() {
       <div className="pwa-controls">
         <ConnectionStatus />
         <button
-          className="artifacts-trigger"
-          title="Мои артефакты"
-          aria-label="Мои артефакты"
-          onClick={() => setArtifactsOpen(true)}
+          className={`artifacts-trigger${artifactsOpen ? " active" : ""}`}
+          title={T.title}
+          aria-label={T.title}
+          aria-pressed={artifactsOpen}
+          onClick={toggleArtifacts}
         >
           <span className="artifacts-icon" aria-hidden="true">◆</span>
         </button>

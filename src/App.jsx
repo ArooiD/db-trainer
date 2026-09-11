@@ -48,11 +48,11 @@ function Shell() {
         </div>
         {nav.mode === "tests" && (lab === "database" ? <TestsView /> : <PlannedModule mode="tests" />)}
         {nav.mode === "lectures" && <LecturesView />}
+        <ArtifactsView />
       </div>
       <AppModal />
       <TransferModal />
       <DesignerOverlay />
-      <ArtifactsView />
     </>
   );
 }

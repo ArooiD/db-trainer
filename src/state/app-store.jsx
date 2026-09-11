@@ -287,7 +287,17 @@ export function AppProvider({ children }) {
   const [connections, setConnections] = useState(() => runtime.getConnections());
   const [activeConnId, setActiveConnId] = useState(() => runtime.activeConnId);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [artifactsOpen, setArtifactsOpen] = useState(false);
+  const [artifactsOpen, setArtifactsOpen] = useState(() => {
+    try { return localStorage.getItem("it-study-lab.artifacts-dock") !== "off"; }
+    catch { return true; }
+  });
+  const toggleArtifacts = useCallback(() => {
+    setArtifactsOpen((open) => {
+      const next = !open;
+      try { localStorage.setItem("it-study-lab.artifacts-dock", next ? "on" : "off"); } catch { /* ignore */ }
+      return next;
+    });
+  }, []);
   const [transfer, setTransfer] = useState({ open: false, result: null, busy: false, error: "" });
   const sessionsRef = useRef(new Map());
 
@@ -762,6 +772,7 @@ export function AppProvider({ children }) {
     closeDesigner,
     artifactsOpen,
     setArtifactsOpen,
+    toggleArtifacts,
   }), [
     TASKS, COURSES, nav, setMode, selectLecture, selectTask, selectCourse, openLab, openRailItem,
     engineId, engineStatus, engineBusy, enabledRuntimes, toggleRuntime, settingsOpen,
@@ -770,7 +781,7 @@ export function AppProvider({ children }) {
     sandbox, setDraft, runSandbox, runCommand,
     resetSandbox, clearSandbox, openTable, clearHistory, showHistoryCommand, tests, setTestDraft,
     runTest, resetProgress, modalContent, showModal, closeModal, designer, openDesigner, closeDesigner,
-    artifactsOpen,
+    artifactsOpen, toggleArtifacts,
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
