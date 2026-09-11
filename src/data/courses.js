@@ -155,8 +155,8 @@ export const COURSES = [
   },
   {
     id: "software-products",
-    code: "OPS",
-    title: "Специальные программные продукты",
+    code: "DevOps",
+    title: "DevOps и эксплуатация",
     description: "Docker, Compose, Git, CI/CD и эксплуатация программных систем.",
     status: "planned",
     runtime: "Container Lab Engine",

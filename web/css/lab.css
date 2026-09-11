@@ -657,3 +657,108 @@
   background: rgba(79,156,249,.08); border: 1px solid rgba(79,156,249,.18);
   color: #9fb0c9; font-size: 11px; line-height: 1.6;
 }
+
+/* ---------------------------------------------------------------------------
+ * Mobile adaptation (unified navigation across DB / Code / OS / DevOps)
+ * ------------------------------------------------------------------------- */
+
+/* Tablet: keep 2-col layout, tighter chrome */
+@media (max-width: 820px) {
+  .topbar { gap: 10px; padding: 10px 14px; }
+  .brand-block { min-width: 0; }
+  .mode-tab { padding: 6px 10px; font-size: 12px; }
+  .runtime-gear { padding: 6px 9px; }
+  .gear-meta { display: none; }
+  .progress { font-size: 10px; }
+  .pwa-controls { display: none; }
+}
+
+/* Phone: topbar wraps to 2 rows; rail becomes a horizontal top strip */
+@media (max-width: 640px) {
+  html, body { font-size: 14px; }
+  .topbar {
+    flex-wrap: wrap; gap: 8px; padding: 8px 10px; row-gap: 8px;
+  }
+  .brand-block { order: 1; min-width: 0; flex: 1 1 auto; }
+  .brand { font-size: 15px; }
+  .brand-subtitle { display: none; }
+  .mode-tabs { order: 2; margin-left: auto; padding: 3px; }
+  .mode-tab { padding: 5px 9px; font-size: 11px; }
+  .runtime-gear { order: 3; padding: 5px 7px; gap: 0; }
+  .progress { order: 4; width: 100%; text-align: right; }
+
+  /* rail switches to horizontal bar above content */
+  .app-shell { display: flex; flex-direction: column; align-items: stretch; }
+  .app-shell > .ide-activity-bar {
+    position: static; z-index: auto;
+    width: 100%; flex: 0 0 auto; height: auto; min-height: 0;
+    flex-direction: row; align-items: stretch; gap: 2px; padding: 4px 6px;
+    border-right: 0; border-bottom: 1px solid #30343a;
+  }
+  .activity-button {
+    flex: 1 1 0; min-height: 44px; padding: 5px 2px;
+    border-left: 0; border-bottom: 2px solid transparent; border-radius: 4px;
+  }
+  .activity-button.active { border-left: 0; border-bottom-color: #4f9cf9; }
+  .activity-button small { font-size: 9px; display: block; }
+  .activity-button span { font-size: 15px; }
+
+  .app-content { flex: 1; min-width: 0; }
+  .product-view { min-height: 0; }
+  .database-ide, .programming-ide {
+    height: auto; min-height: 0; overflow: visible;
+  }
+  .ide-workspace { grid-template-columns: minmax(0, 1fr); }
+  .ide-center { min-height: 560px; grid-template-rows: 38px minmax(280px, auto) minmax(360px, auto); }
+  .ide-database-tree { min-height: 340px; border-top: 1px solid #30343a; }
+  .ide-console-dock { position: static; }
+  .console-layout { grid-template-columns: 1fr; }
+  .console-layout .history-card { display: none; }
+  .program-workspace { display: block; }
+  .program-center { min-height: 560px; grid-template-rows: 38px minmax(320px, auto) minmax(220px, auto); }
+  .program-sidebar { min-height: 220px; }
+
+  /* data grid: allow horizontal scroll instead of forcing layout width */
+  .ide-data-grid .workbench-output { overflow: auto; -webkit-overflow-scrolling: touch; }
+  .data-toolbar { overflow-x: auto; }
+  .connection-bar { padding: 6px 8px; }
+  .connection-transfer { padding: 5px 8px; }
+
+  /* tests view: single column */
+  .product-view.tests-layout { padding-top: 6px; }
+  .product-view.tests-layout > .sidebar { position: static; max-height: none; }
+  .tests-actions { flex-wrap: wrap; gap: 6px; }
+  .tests-actions button { flex: 1 1 auto; min-height: 34px; font-size: 11px; }
+  .task-head { flex-wrap: wrap; gap: 8px; }
+  .task-head h2 { font-size: 18px; }
+  .controls { flex-wrap: wrap; gap: 6px; }
+  .controls button { flex: 1 1 auto; min-height: 34px; font-size: 11px; }
+  .test-editor { min-height: 130px; font-size: 12px; }
+  .results { grid-template-columns: 1fr; gap: 10px; }
+
+  /* lectures view: tighter spacing */
+  .lecture-workspace { padding: 12px; }
+  .course-overview { padding: 12px; gap: 12px; }
+  .course-overview > div:first-child { gap: 10px; }
+  .course-heading h2 { font-size: 18px; }
+  .lecture-list { max-height: none; }
+  .lecture-reader { padding: 16px; min-height: 320px; }
+  .lecture-reader-head h3 { font-size: 18px; }
+  .lecture-actions { flex-wrap: wrap; gap: 6px; }
+  .lecture-actions button { flex: 1 1 auto; min-height: 34px; }
+
+  /* planned module placeholder */
+  .planned-module { padding: 20px 12px; min-height: 40vh; }
+  .planned-card { padding: 22px 16px; }
+  .planned-card h2 { font-size: 17px; }
+
+  /* modals: use more of the screen */
+  .settings-body, .transfer-body { width: 96%; max-width: none; }
+}
+
+/* Very narrow phones */
+@media (max-width: 380px) {
+  .mode-tab { padding: 4px 7px; font-size: 10px; }
+  .brand { font-size: 14px; }
+  .activity-button span { font-size: 14px; }
+}
