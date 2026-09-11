@@ -8,6 +8,7 @@
     "build": "node build_dist.js && node build_inline.js"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.5.8"
+    "@electric-sql/pglite": "0.5.8",
+    "pyodide": "^314.0.6"
   }
 }

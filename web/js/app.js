@@ -22,6 +22,7 @@ const $ = (id) => document.getElementById(id);
 let currentTask = null;
 let solved = loadSet(STORE_DONE);
 let activeMode = "sandbox";
+let activeLab = "database";
 let activeCourseId = COURSES[0]?.id || "";
 let activeLectureId = COURSES[0]?.lectures?.[0]?.id || "";
 
@@ -147,6 +148,17 @@ function setMode(mode) {
   }
 }
 
+function setLab(lab) {
+  activeLab = lab === "programming" ? "programming" : "database";
+  $("database-sandbox").classList.toggle("hidden", activeLab !== "database");
+  $("programming-sandbox").classList.toggle("hidden", activeLab !== "programming");
+  document.querySelectorAll("[data-open-lab]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.openLab === activeLab);
+  });
+  if (activeLab === "programming") $("program-editor").focus();
+  else $("sandbox-editor").focus();
+}
+
 function renderLectures() {
   const courseList = $("course-list");
   if (!courseList || !COURSES.length) return;
@@ -223,11 +235,13 @@ function renderLectureReader(course, lecture) {
           <button class="primary" id="lecture-open-sandbox">Открыть Database Sandbox</button>
           <button id="lecture-open-tests">Перейти к SQL Tests</button>
         </div>
-      ` : `
+      ` : course.id === "programming" ? `
         <div class="lecture-actions">
-          <button class="primary" disabled>Programming Sandbox · следующий этап</button>
-          <span class="lecture-runtime-status">Лекции готовы · runtime подключается отдельно</span>
+          <button class="primary" id="lecture-open-programming">Открыть Programming Sandbox</button>
+          <span class="lecture-runtime-status">JavaScript готов сразу · Python загружается при первом запуске</span>
         </div>
+      ` : `
+        <div class="lecture-actions"><span class="lecture-runtime-status">Практический runtime готовится для этого курса.</span></div>
       `}
     ` : `
       <div class="lecture-placeholder">
@@ -236,8 +250,9 @@ function renderLectureReader(course, lecture) {
       </div>
     `}
   `;
-  $("lecture-open-sandbox")?.addEventListener("click", () => setMode("sandbox"));
-  $("lecture-open-tests")?.addEventListener("click", () => setMode("tests"));
+ $("lecture-open-sandbox")?.addEventListener("click", () => setMode("sandbox"));
+ $("lecture-open-tests")?.addEventListener("click", () => setMode("tests"));
+  $("lecture-open-programming")?.addEventListener("click", () => { setMode("sandbox"); setLab("programming"); });
 }
 
 function renderEngineOptions() {
@@ -530,7 +545,14 @@ function openModal(html) {
 function wireEvents() {
   $("tab-sandbox").addEventListener("click", () => setMode("sandbox"));
   $("tab-tests").addEventListener("click", () => setMode("tests"));
-  $("tab-lectures").addEventListener("click", () => setMode("lectures"));
+ $("tab-lectures").addEventListener("click", () => setMode("lectures"));
+  document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => setLab(button.dataset.openLab)));
+  $("program-open-lectures").addEventListener("click", () => {
+    activeCourseId = "programming";
+    activeLectureId = COURSES.find((item) => item.id === "programming")?.lectures?.[0]?.id || "";
+    renderLectures();
+    setMode("lectures");
+  });
   $("engine-select").addEventListener("change", (event) => switchEngine(event.target.value));
 
   $("sandbox-run").addEventListener("click", runSandbox);
@@ -619,6 +641,7 @@ async function boot() {
   updateProgress();
   renderSidebar();
   renderLectures();
+  window.ITStudyLab.initProgramming();
   wireEvents();
 
   const requestedMode = new URL(location.href).searchParams.get("mode");

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "it-study-lab-v5";
+const CACHE_VERSION = "it-study-lab-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -17,7 +17,8 @@ const APP_SHELL = [
   "./js/db.js",
   "./js/workbench.js",
   "./js/design.js",
-  "./js/database-studio.js",
+ "./js/database-studio.js",
+  "./js/programming.js",
   "./js/pwa.js",
   "./js/engines/lab-engine.js",
   "./js/engines/runtime.js",

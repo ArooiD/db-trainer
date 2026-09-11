@@ -185,6 +185,27 @@
   overflow: hidden;
   background: #101318;
 }
+.programming-ide { display: grid; grid-template-columns: 58px minmax(0, 1fr); height: calc(100vh - 64px); min-height: 650px; overflow: hidden; background: #101318; }
+.program-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 285px; min-height: 0; flex: 1; }
+.program-center { display: grid; grid-template-rows: 38px minmax(260px, 1fr) minmax(190px, 33%); min-height: 0; border-right: 1px solid #30343a; }
+.program-runtime { min-height: 26px; border: 1px solid #454b54; border-radius: 4px; background: #242a31; color: #dfe4eb; font-size: 11px; }
+.program-editor-card, .program-output-card { min-height: 0; overflow: hidden; border: 0; background: #171a1e; }
+.program-editor-card { border-bottom: 1px solid #30343a; }
+.program-editor-card .workbench-editor { height: calc(100% - 30px); min-height: 0; resize: none; background: #171a1e; }
+.program-output { height: calc(100% - 30px); overflow: auto; padding: 12px; background: #101318; color: #d8dee8; font: 12px/1.55 "SF Mono", Consolas, monospace; }
+.program-output pre { margin: 0; white-space: pre-wrap; }
+.program-output .program-error { color: #ff8585; }
+.program-sidebar { overflow: auto; background: #20242a; }
+.program-files { padding: 8px; border-bottom: 1px solid #30343a; }
+.program-file { display: flex; gap: 8px; width: 100%; padding: 7px; border: 0; border-radius: 4px; background: #17486f; color: #e5e9ef; text-align: left; font: 11px/1.4 "SF Mono", Consolas, monospace; }
+.program-file span:first-child { color: #ffda78; }
+.program-course-link, .program-examples { margin: 12px; padding: 12px; border: 1px solid #343b46; border-radius: 7px; background: #191e25; }
+.program-course-link small, .program-examples small { display: block; color: #78849a; font-size: 9px; text-transform: uppercase; letter-spacing: .6px; }
+.program-course-link strong { display: block; margin-top: 6px; color: #e7ebf1; font-size: 12px; }
+.program-course-link p { color: #8b95a4; font-size: 10px; line-height: 1.5; }
+.program-course-link button, .program-examples button { width: 100%; margin-top: 7px; padding: 7px; border-color: #394452; background: #242b35; color: #bcd4ff; font-size: 10px; text-align: left; }
+.program-examples button { color: #b9c1ce; }
+.program-status.ready { color: #38d39f; }.program-status.loading { color: #ffcc66; }.program-status.error { color: #ff8585; }
 .ide-activity-bar {
   display: flex;
   flex-direction: column;
@@ -407,6 +428,8 @@
 
 @media (max-width: 780px) {
   .database-ide { grid-template-columns: 44px minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
+  .programming-ide { grid-template-columns: 44px minmax(0, 1fr); height: auto; min-height: calc(100vh - 110px); overflow: visible; }
+  .program-workspace { display: block; }.program-center { min-height: 720px; grid-template-rows: 38px 390px 292px; }.program-sidebar { min-height: 290px; }
   .activity-button small { display: none; }
   .ide-workspace { display: flex; flex-direction: column; }
   .ide-center { min-height: 720px; grid-template-rows: 38px 330px 350px; }

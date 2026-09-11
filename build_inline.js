@@ -24,7 +24,8 @@ const scripts = [
   "js/workbench.js",
   "js/design.js",
   "js/app.js",
-  "js/database-studio.js",
+ "js/database-studio.js",
+  "js/programming.js",
 ].map(read);
 
 for (const s of scripts) {

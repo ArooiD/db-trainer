@@ -17,6 +17,7 @@ const PGLITE_PACKAGE = path.join(
   "@electric-sql",
   "pglite"
 );
+const PYODIDE_SRC = path.join(__dirname, "node_modules", "pyodide");
 
 function copyDir(src, out) {
   fs.mkdirSync(out, { recursive: true });
@@ -43,6 +44,10 @@ for (const licenseName of ["LICENSE", "POSTGRES-LICENSE", "NOTICE"]) {
   const source = path.join(PGLITE_PACKAGE, licenseName);
   if (fs.existsSync(source)) fs.copyFileSync(source, path.join(pgliteOut, licenseName));
 }
+if (!fs.existsSync(PYODIDE_SRC)) {
+  throw new Error("Pyodide dependency is missing. Run npm install before npm run build.");
+}
+copyDir(PYODIDE_SRC, path.join(OUT, "vendor", "pyodide"));
 
 const files = [];
 (function walk(dir) {

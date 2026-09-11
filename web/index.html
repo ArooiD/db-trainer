@@ -44,10 +44,10 @@
   </header>
 
   <section id="sandbox-view" class="product-view">
-    <div class="database-ide">
+    <div id="database-sandbox" class="database-ide">
       <aside class="ide-activity-bar" aria-label="Лаборатории">
-        <button class="activity-button active" title="Базы данных"><span>▦</span><small>DB</small></button>
-        <button class="activity-button" data-future-module data-title="Программирование" data-description="Редактор программ, stdout/stderr, файлы и запуск Python/JavaScript через браузерные runtimes." title="Программирование"><span>⌘</span><small>Code</small></button>
+        <button class="activity-button active" data-open-lab="database" title="Базы данных"><span>▦</span><small>DB</small></button>
+        <button class="activity-button" data-open-lab="programming" title="Программирование"><span>⌘</span><small>Code</small></button>
         <button class="activity-button" data-future-module data-title="Операционные системы" data-description="Интерактивный Linux terminal, файловая система, процессы, сигналы и визуализаторы." title="Операционные системы"><span>›_</span><small>OS</small></button>
         <button class="activity-button" data-future-module data-title="Специальные программные продукты" data-description="Dockerfile, Compose, контейнеры, сети, volumes и визуальная модель слоёв." title="Docker / Software"><span>◫</span><small>Dev</small></button>
       </aside>
@@ -189,6 +189,59 @@
         </div>
       </main>
     </div>
+    <div id="programming-sandbox" class="programming-ide hidden">
+      <aside class="ide-activity-bar" aria-label="Лаборатории">
+        <button class="activity-button" data-open-lab="database" title="Базы данных"><span>▦</span><small>DB</small></button>
+        <button class="activity-button active" data-open-lab="programming" title="Программирование"><span>⌘</span><small>Code</small></button>
+        <button class="activity-button" data-future-module data-title="Операционные системы" data-description="Интерактивный Linux terminal, файловая система, процессы и сигналы." title="Операционные системы"><span>›_</span><small>OS</small></button>
+        <button class="activity-button" data-future-module data-title="Специальные программные продукты" data-description="Dockerfile, Compose, контейнеры, сети, volumes и CI/CD." title="Docker / Software"><span>◫</span><small>Dev</small></button>
+      </aside>
+      <main class="ide-main">
+        <div class="ide-document-tabs">
+          <button class="ide-document-tab active"><span class="tab-table-icon">⌘</span><span id="program-file-name">main.js</span></button>
+          <button class="ide-new-tab" title="Новый файл">＋</button>
+          <div class="ide-runtime-caption"><span id="program-language">JavaScript / Browser</span><small id="program-status">JavaScript готов</small></div>
+        </div>
+        <div class="program-workspace">
+          <section class="program-center">
+            <div class="data-toolbar">
+              <button id="program-run" class="primary">▶ Run <kbd>Ctrl↵</kbd></button>
+              <button id="program-reset">Reset</button>
+              <span class="toolbar-separator"></span>
+              <select id="program-runtime" class="program-runtime" aria-label="Язык программирования">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python / Pyodide</option>
+              </select>
+              <span class="inline-feedback">Локальное выполнение в браузере</span>
+            </div>
+            <section class="program-editor-card">
+              <div class="panel-head"><span>Source code</span><small>Файл сохраняется в этой сессии</small></div>
+              <textarea id="program-editor" class="workbench-editor" spellcheck="false" aria-label="Редактор кода"></textarea>
+            </section>
+            <section class="program-output-card">
+              <div class="panel-head"><span>Console output</span><small>stdout / stderr</small></div>
+              <div id="program-output" class="program-output"><div class="empty">Запустите программу, чтобы увидеть результат.</div></div>
+            </section>
+          </section>
+          <aside class="program-sidebar">
+            <div class="panel-head"><span>Project</span><small>browser FS</small></div>
+            <div class="program-files"><button class="program-file active"><span>⌘</span><span id="program-sidebar-file">main.js</span></button></div>
+            <div class="program-course-link">
+              <small>Связанный курс</small>
+              <strong>Программирование IT-систем</strong>
+              <p>Теория, практика и Sandbox работают в одном контексте обучения.</p>
+              <button id="program-open-lectures">Открыть лекции</button>
+            </div>
+            <div class="program-examples">
+              <small>Быстрые примеры</small>
+              <button data-program-example="javascript">JavaScript basics</button>
+              <button data-program-example="python">Python basics</button>
+            </div>
+          </aside>
+        </div>
+        <div class="ide-statusbar"><span>● <strong>Programming</strong></span><span>JavaScript · Python / Pyodide</span><span class="statusbar-spacer"></span><span>IT Study Lab</span></div>
+      </main>
+    </div>
   </section>
 
   <section id="lectures-view" class="product-view lectures-view hidden">
@@ -285,6 +338,7 @@
   <script src="js/design.js"></script>
   <script src="js/app.js"></script>
   <script src="js/database-studio.js"></script>
+  <script src="js/programming.js"></script>
   <script src="js/pwa.js"></script>
 </body>
 </html>

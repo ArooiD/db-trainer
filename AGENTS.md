@@ -124,7 +124,7 @@ destroy()
 
 Приоритет после Database Sandbox:
 
-1. Programming Sandbox — Python/Pyodide, затем browser JavaScript.
+1. Programming Sandbox — JavaScript и Python/Pyodide.
 2. Operating Systems Sandbox — terminal, filesystem, processes/signals, позже Linux runtime/simulator.
 3. Software Sandbox — Dockerfile/Compose/container model, Git и CI/CD.
 
