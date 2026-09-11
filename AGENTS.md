@@ -200,6 +200,25 @@ Core-функциональность должна оставаться совм
 - `openDesigner(task)` — проектирование в контексте Tests.
 - `.hidden` должен сохранять `!important`, потому что fullscreen/modal компоненты используют собственный `display`.
 
+## Workspace / Артефакты
+
+Слой `src/workspace/` — общее постоянное рабочее пространство поверх OPFS + IndexedDB.
+
+- `filesystem.js` — обёртка над OPFS (read/write/list/mkdir/stat/joinPath).
+- `registry.js` — индекс артефактов в IndexedDB (id, course, type, files, tags, timestamps).
+- `artifact-bus.js` — публичный API для движков и вьюх: `publishArtifact`, `readArtifact*`, `updateArtifactText`, `deleteArtifact`, `listArtifacts`, `queryArtifacts`, `exportCourseBundle`.
+- `strings.js` — строки интерфейса (генерируется `tools/gen_i18n.py`; кириллицу в JSX не набирать вручную).
+- `util.js` — ASCII-хелперы (форматирование, иконки, скачивание).
+
+Артефакт переживает перезапуск браузера и виден пользователю только через
+панель «Артефакты» (кнопка ◆ в шапке, `ArtifactsView.jsx`, состояние
+`artifactsOpen` в `app-store.jsx`).
+
+Цель: песочницы публикуют результат как артефакт и читают артефакты других
+курсов (например, вывод Code → вход AI). Пока ни один движок ничего не
+публикует — интеграция будет на этапах P2/P3. `MarkdownDoc.jsx` (в `shared/`)
+используется и лекциями, и вьюером артефактов.
+
 ## Что не делать
 
 - Не смешивать свободную песочницу с обязательной системой заданий.
