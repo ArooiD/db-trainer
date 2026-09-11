@@ -8,9 +8,9 @@ export default function AppHeader() {
     </div>
 
     <nav className="mode-tabs" aria-label="Режим работы">
-      <button id="tab-sandbox" className="mode-tab active">Sandbox</button>
-      <button id="tab-tests" className="mode-tab">Tests</button>
       <button id="tab-lectures" className="mode-tab">Лекции</button>
+      <button id="tab-tests" className="mode-tab">Тесты</button>
+      <button id="tab-sandbox" className="mode-tab active">Песочница</button>
     </nav>
 
     <div className="runtime-switch">

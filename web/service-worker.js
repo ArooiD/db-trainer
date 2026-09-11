@@ -1,4 +1,4 @@
-const CACHE_VERSION = "it-study-lab-v11";
+const CACHE_VERSION = "it-study-lab-v12";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -7,9 +7,9 @@ const APP_SHELL = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
-  "./css/style.css?v=11",
-  "./css/lab.css?v=11",
-  "./css/database-studio.css?v=11",
+  "./css/style.css?v=12",
+  "./css/lab.css?v=12",
+  "./css/database-studio.css?v=12",
   "./js/app.js",
   "./js/data.js",
   "./js/tasks.js",

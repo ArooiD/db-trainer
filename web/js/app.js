@@ -27,6 +27,9 @@ let activeCourseId = COURSES[0]?.id || "";
 let activeLectureId = COURSES[0]?.lectures?.[0]?.id || "";
 let pendingTaskId = null;
 
+const LAB_COURSE = { database: "databases", programming: "programming" };
+const COURSE_LAB = { databases: "database", programming: "programming" };
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -159,6 +162,9 @@ function readStateFromUrl() {
   const course = params.get("course");
   if (course && COURSES.some((item) => item.id === course)) {
     activeCourseId = course;
+    if (!["programming", "database"].includes(params.get("lab"))) {
+      activeLab = COURSE_LAB[course] || activeLab;
+    }
     const lecture = params.get("lecture");
     const courseObj = COURSES.find((item) => item.id === course);
     if (lecture && courseObj.lectures.some((item) => item.id === lecture)) {
@@ -183,6 +189,7 @@ function setMode(mode) {
   $("progress").classList.toggle("hidden", activeMode !== "tests");
 
   syncUrl();
+  updateRail();
 
   if (activeMode === "sandbox") {
     syncSandboxDraft();
@@ -196,36 +203,45 @@ function setLab(lab) {
   activeLab = lab === "programming" ? "programming" : "database";
   $("database-sandbox").classList.toggle("hidden", activeLab !== "database");
   $("programming-sandbox").classList.toggle("hidden", activeLab !== "programming");
-  document.querySelectorAll("[data-open-lab]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.openLab === activeLab);
-  });
+  if (LAB_COURSE[activeLab] && LAB_COURSE[activeLab] !== activeCourseId) {
+    activeCourseId = LAB_COURSE[activeLab];
+    activeLectureId = COURSES.find((item) => item.id === activeCourseId)?.lectures?.[0]?.id || "";
+    renderLectures();
+  }
+  updateRail();
   syncUrl();
   if (activeLab === "programming") $("program-editor").focus();
   else $("sandbox-editor").focus();
 }
 
-function renderLectures() {
-  const courseList = $("course-list");
-  if (!courseList || !COURSES.length) return;
+function updateRail() {
+  document.querySelectorAll("[data-open-lab]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.openLab === activeLab && activeMode === "sandbox");
+  });
+  document.querySelectorAll("[data-open-course]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.openCourse === activeCourseId && activeMode === "lectures");
+  });
+}
 
-  const readyCount = COURSES.filter((item) => item.status === "available").length;
-  const readyCountEl = $("lectures-ready-count");
-  if (readyCountEl) readyCountEl.textContent = String(readyCount);
-  const readyLabelEl = $("lectures-ready-label");
-  if (readyLabelEl) readyLabelEl.textContent = readyCount === 1 ? "курс доступен" : "курса доступны";
+function selectCourse(courseId) {
+  const course = COURSES.find((item) => item.id === courseId);
+  if (!course) return;
+  if (activeCourseId !== course.id) {
+    activeCourseId = course.id;
+    activeLectureId = course.lectures[0]?.id || "";
+  }
+  renderLectures();
+  updateRail();
+  syncUrl();
+}
+
+function renderLectures() {
+  if (!COURSES.length) return;
 
   const course = COURSES.find((item) => item.id === activeCourseId) || COURSES[0];
   activeCourseId = course.id;
   const lecture = course.lectures.find((item) => item.id === activeLectureId) || course.lectures[0];
   activeLectureId = lecture?.id || "";
-
-  courseList.innerHTML = COURSES.map((item) => `
-    <button class="course-card ${item.id === course.id ? "active" : ""}" data-course-id="${escapeHtml(item.id)}" style="--course-accent:${escapeHtml(item.accent)}">
-      <span class="course-code">${escapeHtml(item.code)}</span>
-      <span class="course-card-copy"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.runtime)}</small></span>
-      <span class="course-status ${item.status}">${item.status === "available" ? "доступен" : "заготовка"}</span>
-    </button>
-  `).join("");
 
   $("course-overview").innerHTML = `
     <div>
@@ -248,15 +264,6 @@ function renderLectures() {
 
   if (lecture) renderLectureReader(course, lecture);
 
-  courseList.querySelectorAll("[data-course-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeCourseId = button.dataset.courseId;
-      const next = COURSES.find((item) => item.id === activeCourseId);
-      activeLectureId = next?.lectures?.[0]?.id || "";
-      renderLectures();
-      syncUrl();
-    });
-  });
   $("lecture-list").querySelectorAll("[data-lecture-id]").forEach((button) => {
     button.addEventListener("click", () => {
       activeLectureId = button.dataset.lectureId;
@@ -458,15 +465,6 @@ function showSchema() {
   );
 }
 
-function openFutureModule(name, description) {
-  openModal(
-    `<div class="coming-badge">Следующий runtime</div>` +
-    `<h3>${escapeHtml(name)}</h3>` +
-    `<p>${escapeHtml(description)}</p>` +
-    `<p class="muted">Этот модуль будет подключаться к тому же Workbench API: input → runtime → output/state.</p>`
-  );
-}
-
 function renderSidebar() {
   const byLevel = {};
   TASKS.forEach((task) => (byLevel[task.level] = byLevel[task.level] || []).push(task));
@@ -597,11 +595,10 @@ function wireEvents() {
   $("tab-tests").addEventListener("click", () => setMode("tests"));
  $("tab-lectures").addEventListener("click", () => setMode("lectures"));
   document.querySelectorAll("[data-open-lab]").forEach((button) => button.addEventListener("click", () => { setMode("sandbox"); setLab(button.dataset.openLab); }));
+  document.querySelectorAll("[data-open-course]").forEach((button) => button.addEventListener("click", () => { setMode("lectures"); selectCourse(button.dataset.openCourse); }));
   $("program-open-lectures").addEventListener("click", () => {
-    activeCourseId = "programming";
-    activeLectureId = COURSES.find((item) => item.id === "programming")?.lectures?.[0]?.id || "";
-    renderLectures();
     setMode("lectures");
+    selectCourse("programming");
   });
   $("engine-select").addEventListener("change", (event) => switchEngine(event.target.value));
 
@@ -674,11 +671,6 @@ function wireEvents() {
     if (currentTask) selectTask(currentTask.id);
   });
 
-  document.querySelectorAll("[data-future-module]").forEach((button) => {
-    button.addEventListener("click", () =>
-      openFutureModule(button.dataset.title, button.dataset.description)
-    );
-  });
 
   $("modal-close").addEventListener("click", () => $("modal").classList.add("hidden"));
   $("modal").addEventListener("click", (event) => {
