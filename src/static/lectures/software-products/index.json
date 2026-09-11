@@ -1,0 +1,68 @@
+{
+  "course": "software-products",
+  "lectures": [
+    {
+      "id": "ops-introduction",
+      "title": "Зачем нужен DevOps",
+      "duration": "16 мин",
+      "level": "Основы",
+      "summary": "Культура, автоматизация и петли обратной связи между разработкой и эксплуатацией.",
+      "format": "article",
+      "file": "ops-introduction.md"
+    },
+    {
+      "id": "ops-containers",
+      "title": "Контейнеры и образы",
+      "duration": "30 мин",
+      "level": "Основы",
+      "summary": "Namespaces, cgroups, слои образа и жизненный цикл контейнера.",
+      "format": "article",
+      "file": "ops-containers.md"
+    },
+    {
+      "id": "ops-dockerfile",
+      "title": "Проектирование Dockerfile",
+      "duration": "26 мин",
+      "level": "Средний",
+      "summary": "Многоступенчатые сборки, размер образа, безопасность и кэширование.",
+      "format": "article",
+      "file": "ops-dockerfile.md"
+    },
+    {
+      "id": "ops-compose",
+      "title": "Docker Compose",
+      "duration": "28 мин",
+      "level": "Средний",
+      "summary": "Сервисы, сети, volumes, зависимости и healthcheck.",
+      "format": "article",
+      "file": "ops-compose.md"
+    },
+    {
+      "id": "ops-git",
+      "title": "Git и ветвление",
+      "duration": "24 мин",
+      "level": "Основы",
+      "summary": "Коммиты, ветки, слияние, rebase и разумная история изменений.",
+      "format": "article",
+      "file": "ops-git.md"
+    },
+    {
+      "id": "ops-cicd",
+      "title": "CI/CD и пайплайны",
+      "duration": "32 мин",
+      "level": "Средний",
+      "summary": "Триггеры, артефакты, кеширование, матрицы и стадии доставки.",
+      "format": "article",
+      "file": "ops-cicd.md"
+    },
+    {
+      "id": "ops-observability",
+      "title": "Наблюдаемость и эксплуатация",
+      "duration": "30 мин",
+      "level": "Продвинутый",
+      "summary": "Логи, метрики, трассировка, алерты и SLO.",
+      "format": "article",
+      "file": "ops-observability.md"
+    }
+  ]
+}

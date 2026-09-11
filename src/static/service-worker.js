@@ -1,4 +1,4 @@
-const CACHE_VERSION = "it-study-lab-v17";
+const CACHE_VERSION = "it-study-lab-v18";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

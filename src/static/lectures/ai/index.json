@@ -1,0 +1,77 @@
+{
+  "course": "ai",
+  "lectures": [
+    {
+      "id": "ai-introduction",
+      "title": "Что такое машинное обучение",
+      "duration": "20 мин",
+      "level": "Основы",
+      "summary": "Отличие ML от классического программирования, данные, модель, обучение.",
+      "format": "article",
+      "file": "ai-introduction.md"
+    },
+    {
+      "id": "ai-supervised",
+      "title": "Обучение с учителем",
+      "duration": "26 мин",
+      "level": "Основы",
+      "summary": "Классификация, регрессия, разметка, переобучение и валидация.",
+      "format": "article",
+      "file": "ai-supervised.md"
+    },
+    {
+      "id": "ai-unsupervised",
+      "title": "Обучение без учителя",
+      "duration": "24 мин",
+      "level": "Средний",
+      "summary": "Кластеризация, снижение размерности, PCA и k-means.",
+      "format": "article",
+      "file": "ai-unsupervised.md"
+    },
+    {
+      "id": "ai-neural-networks",
+      "title": "Нейронные сети",
+      "duration": "30 мин",
+      "level": "Средний",
+      "summary": "Нейрон, слои, функции активации, loss и градиентный спуск.",
+      "format": "article",
+      "file": "ai-neural-networks.md"
+    },
+    {
+      "id": "ai-training",
+      "title": "Обучение и обратное распространение",
+      "duration": "32 мин",
+      "level": "Продвинутый",
+      "summary": "Backpropagation, эпохи, batch, learning rate и сходимость.",
+      "format": "article",
+      "file": "ai-training.md"
+    },
+    {
+      "id": "ai-cnn",
+      "title": "Свёрточные сети и компьютерное зрение",
+      "duration": "28 мин",
+      "level": "Продвинутый",
+      "summary": "Свёртки, пулинг, инвариантность к сдвигу и распознавание изображений.",
+      "format": "article",
+      "file": "ai-cnn.md"
+    },
+    {
+      "id": "ai-nlp",
+      "title": "Обработка языка и трансформеры",
+      "duration": "34 мин",
+      "level": "Продвинутый",
+      "summary": "Токенизация, эмбеддинги, внимание и архитектура трансформера.",
+      "format": "article",
+      "file": "ai-nlp.md"
+    },
+    {
+      "id": "ai-ethics",
+      "title": "Ограничения и этика ИИ",
+      "duration": "22 мин",
+      "level": "Средний",
+      "summary": "Смещение, объяснимость, переиспользование моделей и ответственность.",
+      "format": "article",
+      "file": "ai-ethics.md"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "course": "operating-systems",
+  "lectures": [
+    {
+      "id": "os-introduction",
+      "title": "Что делает операционная система",
+      "duration": "18 мин",
+      "level": "Основы",
+      "summary": "Ядро, пользовательское пространство, системные вызовы и роль ОС.",
+      "format": "article",
+      "file": "os-introduction.md"
+    },
+    {
+      "id": "os-processes",
+      "title": "Процессы и потоки",
+      "duration": "26 мин",
+      "level": "Основы",
+      "summary": "Состояния процессов, планирование, потоки, сигналы и IPC.",
+      "format": "article",
+      "file": "os-processes.md"
+    },
+    {
+      "id": "os-memory",
+      "title": "Память и адресное пространство",
+      "duration": "30 мин",
+      "level": "Средний",
+      "summary": "Виртуальная память, страницы, heap, stack и mmap.",
+      "format": "article",
+      "file": "os-memory.md"
+    },
+    {
+      "id": "os-filesystems",
+      "title": "Файловые системы Linux",
+      "duration": "28 мин",
+      "level": "Средний",
+      "summary": "Файлы, inode, права доступа, монтирование и виртуальные файловые системы.",
+      "format": "article",
+      "file": "os-filesystems.md"
+    },
+    {
+      "id": "os-io",
+      "title": "Ввод-вывод и буферизация",
+      "duration": "24 мин",
+      "level": "Средний",
+      "summary": "Блочные и символьные устройства, буферы, синхронный и асинхронный ввод-вывод.",
+      "format": "article",
+      "file": "os-io.md"
+    },
+    {
+      "id": "os-concurrency",
+      "title": "Синхронизация и гонки",
+      "duration": "32 мин",
+      "level": "Продвинутый",
+      "summary": "Мьютексы, семафоры, взаимоблокировки и состояния гонки.",
+      "format": "article",
+      "file": "os-concurrency.md"
+    },
+    {
+      "id": "os-shell",
+      "title": "Оболочка и системные утилиты",
+      "duration": "26 мин",
+      "level": "Средний",
+      "summary": "Конвейеры, перенаправление, переменные окружения и типичные утилиты.",
+      "format": "article",
+      "file": "os-shell.md"
+    }
+  ]
+}

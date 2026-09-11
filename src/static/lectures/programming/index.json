@@ -1,0 +1,86 @@
+{
+  "course": "programming",
+  "lectures": [
+    {
+      "id": "dev-foundations",
+      "title": "Как выполняется программа",
+      "duration": "20 мин",
+      "level": "Основы",
+      "summary": "Исходный код, интерпретатор, компилятор, память, ввод и вывод.",
+      "format": "article",
+      "file": "dev-foundations.md"
+    },
+    {
+      "id": "dev-types",
+      "title": "Типы данных и выражения",
+      "duration": "22 мин",
+      "level": "Основы",
+      "summary": "Числа, строки, булевый тип, приведение типов и область видимости.",
+      "format": "article",
+      "file": "dev-types.md"
+    },
+    {
+      "id": "dev-control-flow",
+      "title": "Условия и циклы",
+      "duration": "24 мин",
+      "level": "Основы",
+      "summary": "Ветвление, инвариант цикла, break/continue и типичные off-by-one ошибки.",
+      "format": "article",
+      "file": "dev-control-flow.md"
+    },
+    {
+      "id": "dev-algorithms",
+      "title": "Алгоритмы и структуры данных",
+      "duration": "27 мин",
+      "level": "Основы",
+      "summary": "Функции, коллекции, поиск, сортировка и оценка сложности.",
+      "format": "article",
+      "file": "dev-algorithms.md"
+    },
+    {
+      "id": "dev-functions",
+      "title": "Функции и области видимости",
+      "duration": "26 мин",
+      "level": "Средний",
+      "summary": "Параметры, значения по умолчанию, чистые функции, замыкания.",
+      "format": "article",
+      "file": "dev-functions.md"
+    },
+    {
+      "id": "dev-python",
+      "title": "Python и модульная программа",
+      "duration": "30 мин",
+      "level": "Средний",
+      "summary": "Модули, исключения, файлы и воспроизводимое выполнение.",
+      "format": "article",
+      "file": "dev-python.md"
+    },
+    {
+      "id": "dev-web",
+      "title": "JavaScript и асинхронность",
+      "duration": "32 мин",
+      "level": "Средний",
+      "summary": "Событийная модель, DOM, Promise, async/await и Web API.",
+      "format": "article",
+      "file": "dev-web.md"
+    },
+    {
+      "id": "dev-error-handling",
+      "title": "Ошибки, отладка и логирование",
+      "duration": "24 мин",
+      "level": "Средний",
+      "summary": "Stack trace, точки останова, уровни логов и осмысленные сообщения об ошибках.",
+      "format": "article",
+      "file": "dev-error-handling.md"
+    },
+    {
+      "id": "dev-architecture",
+      "title": "Архитектура и тестирование",
+      "duration": "35 мин",
+      "level": "Продвинутый",
+      "summary": "Разделение ответственности, чистые функции, тесты и наблюдаемость.",
+      "format": "article",
+      "file": "dev-architecture.md"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "course": "architecture",
+  "lectures": [
+    {
+      "id": "arch-introduction",
+      "title": "Зачем нужна архитектура",
+      "duration": "20 мин",
+      "level": "Основы",
+      "summary": "Архитектурные решения, trade-off, стоимость изменений и качество системы.",
+      "format": "article",
+      "file": "arch-introduction.md"
+    },
+    {
+      "id": "arch-styles",
+      "title": "Архитектурные стили",
+      "duration": "26 мин",
+      "level": "Основы",
+      "summary": "Монолит, клиент-сервер, сервис-ориентированная архитектура и событийная модель.",
+      "format": "article",
+      "file": "arch-styles.md"
+    },
+    {
+      "id": "arch-layers",
+      "title": "Многоуровневая архитектура",
+      "duration": "24 мин",
+      "level": "Средний",
+      "summary": "Presentation, domain, infrastructure и направления зависимостей.",
+      "format": "article",
+      "file": "arch-layers.md"
+    },
+    {
+      "id": "arch-components",
+      "title": "Компоненты и границы",
+      "duration": "28 мин",
+      "level": "Средний",
+      "summary": "Модули, границы контекста, API и инварианты.",
+      "format": "article",
+      "file": "arch-components.md"
+    },
+    {
+      "id": "arch-data",
+      "title": "Управление данными",
+      "duration": "30 мин",
+      "level": "Продвинутый",
+      "summary": "Распределённые данные, согласованность, кэш и события как источник истины.",
+      "format": "article",
+      "file": "arch-data.md"
+    },
+    {
+      "id": "arch-integration",
+      "title": "Интеграция систем",
+      "duration": "26 мин",
+      "level": "Средний",
+      "summary": "REST, gRPC, очереди, контракты и версионирование интерфейсов.",
+      "format": "article",
+      "file": "arch-integration.md"
+    },
+    {
+      "id": "arch-reliability",
+      "title": "Отказоустойчивость и наблюдаемость",
+      "duration": "32 мин",
+      "level": "Продвинутый",
+      "summary": "Резилиентность, таймауты, retry, circuit breaker, распределённая трассировка.",
+      "format": "article",
+      "file": "arch-reliability.md"
+    },
+    {
+      "id": "arch-decisions",
+      "title": "Принятие архитектурных решений",
+      "duration": "22 мин",
+      "level": "Средний",
+      "summary": "ADR, качество без свидетелей, ревью и управляемая эволюция.",
+      "format": "article",
+      "file": "arch-decisions.md"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "course": "databases",
+  "lectures": [
+    {
+      "id": "db-relational-model",
+      "title": "Реляционная модель",
+      "duration": "18 мин",
+      "level": "Основы",
+      "summary": "Таблицы, строки, столбцы, ключи и ограничения целостности.",
+      "format": "article",
+      "file": "db-relational-model.md"
+    },
+    {
+      "id": "db-select",
+      "title": "SELECT и фильтрация",
+      "duration": "24 мин",
+      "level": "Основы",
+      "summary": "Выборка данных, WHERE, ORDER BY, LIMIT и выражения.",
+      "format": "article",
+      "file": "db-select.md"
+    },
+    {
+      "id": "db-null",
+      "title": "NULL и трёхзначная логика",
+      "duration": "16 мин",
+      "level": "Основы",
+      "summary": "Неизвестное значение, IS NULL, коалесценция и типичные ловушки.",
+      "format": "article",
+      "file": "db-null.md"
+    },
+    {
+      "id": "db-aggregates",
+      "title": "Агрегаты, GROUP BY и HAVING",
+      "duration": "26 мин",
+      "level": "Средний",
+      "summary": "COUNT, SUM, AVG, группировка и фильтрация групп.",
+      "format": "article",
+      "file": "db-aggregates.md"
+    },
+    {
+      "id": "db-joins",
+      "title": "JOIN и связи",
+      "duration": "28 мин",
+      "level": "Средний",
+      "summary": "INNER/LEFT/RIGHT/FULL JOIN, условия соединения и чтение связанных данных.",
+      "format": "article",
+      "file": "db-joins.md"
+    },
+    {
+      "id": "db-subqueries-cte",
+      "title": "Подзапросы и CTE",
+      "duration": "25 мин",
+      "level": "Средний",
+      "summary": "Скалярные подзапросы, IN/EXISTS, WITH и читаемые цепочки шагов.",
+      "format": "article",
+      "file": "db-subqueries-cte.md"
+    },
+    {
+      "id": "db-window-functions",
+      "title": "Оконные функции",
+      "duration": "30 мин",
+      "level": "Продвинутый",
+      "summary": "ROW_NUMBER, RANK, LAG/LEAD, PARTITION BY и рамка окна.",
+      "format": "article",
+      "file": "db-window-functions.md"
+    },
+    {
+      "id": "db-indexes",
+      "title": "Индексы и план запроса",
+      "duration": "32 мин",
+      "level": "Продвинутый",
+      "summary": "Назначение индексов, селективность, составные индексы и стоимость выполнения.",
+      "format": "article",
+      "file": "db-indexes.md"
+    },
+    {
+      "id": "db-transactions",
+      "title": "Транзакции и ACID",
+      "duration": "28 мин",
+      "level": "Продвинутый",
+      "summary": "BEGIN/COMMIT/ROLLBACK, изоляция, блокировки и типичные аномалии.",
+      "format": "article",
+      "file": "db-transactions.md"
+    }
+  ]
+}

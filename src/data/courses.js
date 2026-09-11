@@ -1,13 +1,15 @@
 // Каталог учебных курсов IT Study Lab.
-// Метаданные курса живут здесь; содержимое лекций вынесено в ./lectures/*.js —
-// по одному файлу на курс, чтобы контент можно было пополнять независимо от интерфейса.
+// Метаданные темы живут в JSON (src/static/lectures/<курс>/index.json);
+// тело каждой лекции — отдельный Markdown-файл, который подгружается лениво.
+// JSON импортируется здесь синхронно, чтобы навигация и валидация ?lecture=...
+// работали без сетевой задержки; Markdown не бандлится и грузится из public/.
 
-import { DB_LECTURES } from "./lectures/databases.js";
-import { DEV_LECTURES } from "./lectures/programming.js";
-import { AI_LECTURES } from "./lectures/ai.js";
-import { ARCH_LECTURES } from "./lectures/architecture.js";
-import { OS_LECTURES } from "./lectures/operating-systems.js";
-import { OPS_LECTURES } from "./lectures/software-products.js";
+import databases from "../static/lectures/databases/index.json";
+import programming from "../static/lectures/programming/index.json";
+import operatingSystems from "../static/lectures/operating-systems/index.json";
+import softwareProducts from "../static/lectures/software-products/index.json";
+import ai from "../static/lectures/ai/index.json";
+import architecture from "../static/lectures/architecture/index.json";
 
 export const COURSES = [
   {
@@ -18,7 +20,7 @@ export const COURSES = [
     status: "available",
     runtime: "SQLite · PostgreSQL / PGlite",
     accent: "#4f9cf9",
-    lectures: DB_LECTURES
+    lectures: databases.lectures
   },
   {
     id: "programming",
@@ -29,7 +31,7 @@ export const COURSES = [
     practiceStatus: "planned",
     runtime: "Python / Pyodide · Browser JavaScript",
     accent: "#9b8cff",
-    lectures: DEV_LECTURES
+    lectures: programming.lectures
   },
   {
     id: "operating-systems",
@@ -39,7 +41,7 @@ export const COURSES = [
     status: "planned",
     runtime: "Linux sandbox / v86",
     accent: "#38d39f",
-    lectures: OS_LECTURES
+    lectures: operatingSystems.lectures
   },
   {
     id: "software-products",
@@ -49,7 +51,7 @@ export const COURSES = [
     status: "planned",
     runtime: "Container Lab Engine",
     accent: "#ffb454",
-    lectures: OPS_LECTURES
+    lectures: softwareProducts.lectures
   },
   {
     id: "ai",
@@ -59,7 +61,7 @@ export const COURSES = [
     status: "planned",
     runtime: "TensorFlow.js / ONNX Runtime Web",
     accent: "#ff6ba6",
-    lectures: AI_LECTURES
+    lectures: ai.lectures
   },
   {
     id: "architecture",
@@ -69,6 +71,6 @@ export const COURSES = [
     status: "planned",
     runtime: "C4-lab / ADR editor",
     accent: "#63e2d1",
-    lectures: ARCH_LECTURES
+    lectures: architecture.lectures
   }
 ];
