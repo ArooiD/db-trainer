@@ -62,6 +62,7 @@
 /* Global application shell: shared left rail + scrollable content */
 .app-shell { display: flex; align-items: flex-start; }
 .app-content { flex: 1; min-width: 0; }
+.app-shell > .product-view { flex: 1; min-width: 0; }
 .app-shell > .ide-activity-bar {
   position: sticky;
   top: var(--topbar-h);
@@ -476,15 +477,21 @@
 }
 .course-overview > div:first-child { display: flex; align-items: center; gap: 15px; }
 .course-badge {
-  display: grid;
+  display: inline-grid;
   place-items: center;
-  width: 54px;
+  box-sizing: border-box;
+  min-width: 54px;
+  max-width: 96px;
   height: 54px;
+  padding: 0 12px;
   border: 1px solid color-mix(in srgb, var(--course-accent) 55%, transparent);
   border-radius: 12px;
   background: color-mix(in srgb, var(--course-accent) 14%, #171c24);
   color: var(--course-accent);
-  font: 800 12px/1 "SF Mono", Consolas, monospace;
+  font: 800 11px/1.1 "SF Mono", Consolas, monospace;
+  letter-spacing: .2px;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 .course-heading small { color: #718099; font-size: 9px; text-transform: uppercase; letter-spacing: .7px; }
 .course-heading h2 { margin: 3px 0 4px; font-size: 20px; }
